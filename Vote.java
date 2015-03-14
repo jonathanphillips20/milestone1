@@ -1,14 +1,22 @@
 import java.util.Arrays;
 
-public class Vote {
+public class Vote { 
 	short voteNum = -1;
 	int loginID;
-	char[] password;
+	char[] password; 
 	
 	public Vote(short voteNum, int loginID, char[] password){
 		this.voteNum = voteNum;
 		this.loginID = loginID;
 		this.password = password;
+	}
+
+	public int getLoginID(){
+		return loginID;
+	}
+
+	public char[] getLoginPass(){
+		return password;
 	}
 	
 	public byte[] toByteArray(){

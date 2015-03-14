@@ -1,5 +1,5 @@
-public class Entry {
-private int loginID;
+public class Entry { 
+private int loginID; 
 private char[] LoginPW;
 private char[] name;
 private char[] district;
@@ -51,7 +51,7 @@ public byte[] toByteArray(){
 	return ret;
 }
 
-public Entry toEntryObj(byte[] bytes){
+public static Entry toEntryObj(byte[] bytes){
 	int loginID = (int) (bytes[0]<<8*3 | bytes[1]<<8*2 | bytes[2]<<8 | bytes[3]);
 	
 	byte[] temp = new byte[bytes.length-16-16-16];
@@ -76,8 +76,5 @@ public Entry toEntryObj(byte[] bytes){
 	return new Entry(loginID,password,name,dist);
 	
 }
-
-
-
 }
 
