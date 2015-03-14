@@ -31,7 +31,17 @@ public class Client {
 			byte[] buffer = new byte[80];
 			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
 			scket.receive(reply);
-			System.out.println("Candidate list : " + new String(reply.getData()));
+			if (reply.getData()[0]==(byte)-1){
+				return;
+			}
+			
+			DatagramPacket  candidateRequest = new DatagramPacket(new byte[1]={(byte)0}, 1,
+					Hst, serverPort);
+			scket.send(request);
+			byte [] candidateArray=  new byte[128];
+			DatagramPacket candidates = new DatagramPacket(candidateArray, candidateArray.length);
+			scket.receive(candidates);
+			System.out.println("Candidate list : " + new String(candidates.getData()));
 			System.out.println("Enter Id + Password +Candidate # : <id> <password> <vote>");
 			System.out.println("Enter id:");
 			 id= kbreader.nextInt();
@@ -46,6 +56,7 @@ public class Client {
 			DatagramPacket newRequest = new DatagramPacket(voteArray, voteArray.length,
 					Hst, serverPort);
 			scket.send(newRequest);
+			
 			byte[] receiveBuffer = new byte[80];
 			DatagramPacket ack = new DatagramPacket(receiveBuffer, receiveBuffer.length);
 			scket.receive(ack);
@@ -80,5 +91,6 @@ public class Client {
 				scket.close();
 		}
 	}
+	
 
 }
