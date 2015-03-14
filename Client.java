@@ -2,7 +2,7 @@ import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 public class Client {
-	public static void main(String args[]) throws Exception
+	public static void main(String args[])
 	{
 		DatagramSocket scket = null;
 		Scanner kbreader = new Scanner(System.in);
@@ -14,18 +14,20 @@ public class Client {
 		char[] name = kbreader.next().toCharArray();
 		System.out.println("Enter district");
 		char[] district=kbreader.next().toCharArray();
+		
 		//getEntryArray
 		Entry clientEntry = new Entry(id,pw,name,district);
 		byte[] entryArray = clientEntry.toByteArray();
+		
 		 try{
 			scket= new DatagramSocket();
 			
 			InetAddress Hst = InetAddress.getByName("localhost");
 			
-			int serverPort = 9878;//Random port
+			int serverPort = 5555;//Random port
 		
-			DatagramPacket request = new DatagramPacket(entryArray, entryArray.length,
-					Hst, serverPort);
+			DatagramPacket request = new DatagramPacket(entryArray, entryArray.length, Hst, serverPort);
+			System.out.println(entryArray);
 			scket.send(request);
 			
 			byte[] buffer = new byte[80];

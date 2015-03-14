@@ -28,48 +28,49 @@ public char[] getDistrict() {
 	return district;
 }
 public byte[] toByteArray(){
-	byte[] ret = new byte[4+LoginPW.length+name.length + district.length];
+	byte[] ret = new byte[5+LoginPW.length+name.length + district.length];
+	ret[0] = (byte) 2;
+	
 	for(int i=0;i<4;i++){
-		ret[3-i] = (byte) (loginID>>(i*8));
+		ret[4-i] = (byte) (loginID>>(i*8));
 	}
 	
 	byte[] tempPW = (new String(this.LoginPW)).getBytes();
 	for(int i=0;i<this.LoginPW.length;i++){
-		ret[4+i]=tempPW[i];
+		ret[5+i]=tempPW[i];
 	}
 	
 	byte[] tempName = (new String(this.name)).getBytes();
 	for(int i=0;i<this.name.length;i++){
-		ret[4+LoginPW.length+i]=tempName[i];
+		ret[5+LoginPW.length+i]=tempName[i];
 	}
 	
 	byte[] dist = (new String(this.district)).getBytes();
 	for(int i=0;i<this.district.length;i++){
-		ret[4+LoginPW.length+district.length+i]=tempName[i];
+		ret[5+LoginPW.length+name.length+i]=dist[i];
 	}
 	
 	return ret;
 }
 
 public static Entry toEntryObj(byte[] bytes){
-	int loginID = (int) (bytes[0]<<8*3 | bytes[1]<<8*2 | bytes[2]<<8 | bytes[3]);
+	int loginID = (int) (bytes[1]<<8*3 | bytes[2]<<8*2 | bytes[3]<<8 | bytes[4]);
 	
-	byte[] temp = new byte[bytes.length-16-16-16];
+	byte[] temp = new byte[16];
 	for(int i=0;i<temp.length;i++){
-		temp[i] = bytes[i+16];
+		temp[i] = bytes[i+4];
 	}
 	char[] password = (new String(temp)).toCharArray();
 	
-	byte[] temp2 = new byte[bytes.length-16-16];
+	byte[] temp2 = new byte[16];
 	for(int i=0;i<temp2.length;i++){
-		temp2[i] = bytes[i+16+16];
+		temp2[i] = bytes[i+19];
 	}
 	char[] name = (new String(temp2)).toCharArray();
 	
-	
-	byte[] temp3 = new byte[bytes.length-16];
+	byte[] temp3 = new byte[16];
 	for(int i=0;i<temp3.length;i++){
-		temp3[i] = bytes[i+16+16+16];
+		temp3[i] = bytes[i+34];
 	}
 	char[] dist = (new String(temp3)).toCharArray();
 	
