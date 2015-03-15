@@ -16,6 +16,7 @@ public class Server {
 	DatagramSocket socket;
 	
 	public Server(String candidates){
+		System.out.println("Starting Initialization");
 		this.candidates = candidates;
 		this.packetQueue = new ConcurrentLinkedQueue<DatagramPacket>();
 		try{
@@ -53,6 +54,7 @@ public class Server {
 		});
 
 		try{
+			System.out.println("Starting Server...");
 			t1.start();
 			t2.start();
 			t1.join();

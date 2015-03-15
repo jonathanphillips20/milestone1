@@ -1,100 +1,119 @@
-import java.io.*;
-import java.net.*;
-import java.util.Scanner;
-public class Client {
+import java.io.IOException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
-	public Client(){
+import java.net.DatagramSocket;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+
+import java.util.Scanner;
+
+public class Client {
+	private String candidates;
+	private int port;
+	private DatagramSocket socket;
+	private InetAddress host;
+	private boolean quit;
+	
+	public Client(int port){
+		this.port = port;
+		try{this.socket = new DatagramSocket();}catch(SocketException e){e.printStackTrace();}
+		try{this.host = InetAddress.getByName("localhost");}catch(UnknownHostException e){e.printStackTrace();}
+		this.quit=false;
+		System.out.println(" " + port + socket + host);
 		this.main();
 	}
-
+	
+	public Client(){
+		this(5555);
+	}
+	
+	public boolean register(int id, char[] password, char[] name, char[] district){
+		//returns false if id is already registered or char arrays are longer then 16
+		if(password.length>16||name.length>16||district.length>16){	//char[] restricted to 16 long
+			System.out.println("Invalid input. Password, Name and District limited 16 chars");
+			return false;
+		}
+		byte[] entryArray = (new Entry(id,password,name,district)).toByteArray();
+		DatagramPacket request = new DatagramPacket(entryArray, entryArray.length, host, port);
+		try{socket.send(request);}catch(IOException e){e.printStackTrace();}
+		System.out.println("Sending Register request");
+		
+		byte[] buffer = new byte[80];
+		DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+		try{socket.receive(reply);}catch(IOException e){e.printStackTrace();}
+		if(reply.getData()[0]==(byte)-1){
+			System.out.println("ID already registered\n");
+			return false;
+		}
+		System.out.println("Register successful\n");
+		return true;
+	}
+	
+	public boolean vote(short voteNum, int id, char[] password){
+		if(password.length>16){	//char[] restricted to 16 long
+			System.out.println("Invalid password. Password restricted to 16 chars");
+			return false;
+		}
+		byte[] voteArray = (new Vote(voteNum,id,password)).toByteArray(); 
+		DatagramPacket request = new DatagramPacket(voteArray, voteArray.length, host, port);
+		try{socket.send(request);}catch(IOException e){e.printStackTrace();}
+		System.out.println("Sent request to Vote");
+		
+		byte[] buffer = new byte[80];
+		DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+		try{socket.receive(reply);}catch(IOException e){e.printStackTrace();}
+		if( reply.getData()[0] == (byte) -1){
+			System.out.println("Vote already registered or incorrect user id/password combo\n");
+			return false;
+		}
+		System.out.println("vote Registered\n");
+		return true;
+	}
+	
+	public void getCandidates(){
+		byte[] b = new byte[1]; b[0]=(byte)0;
+		DatagramPacket candidateRequest = new DatagramPacket(b,1,host, port);
+		try{socket.send(candidateRequest);}catch(IOException e){e.printStackTrace();}
+		System.out.println("Sent request for candidates");
+		
+		byte[] buffer = new byte[80];
+		DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+		try{socket.receive(reply);}catch(IOException e){e.printStackTrace();}
+		System.out.println("Received reply (candidates)\n");
+		
+		this.candidates = new String(reply.getData());
+	}
+	
+	public void quit(){
+		this.quit=true;
+	}
+	
 	public void main()
 	{
-		DatagramSocket scket = null;
-		Scanner kbreader = new Scanner(System.in);
-		System.out.println("Enter Id");
-		int id = kbreader.nextInt();
-		System.out.println("Enter Password");
-		char[] pw = kbreader.next().toCharArray();
-		System.out.println("Enter name");
-		char[] name = kbreader.next().toCharArray();
-		System.out.println("Enter district");
-		char[] district=kbreader.next().toCharArray();
-		//getEntryArray
-		Entry clientEntry = new Entry(id,pw,name,district);
-		byte[] entryArray = clientEntry.toByteArray();
-		 try{
-			scket= new DatagramSocket();
-			
-			InetAddress Hst = InetAddress.getByName("localhost");
-			
-			int serverPort =5555;//Random port
+		getCandidates();
 		
-			DatagramPacket request = new DatagramPacket(entryArray, entryArray.length, Hst, serverPort);
-			scket.send(request);
-			
-			byte[] buffer = new byte[80];
-			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-			scket.receive(reply);
-			if (reply.getData()[0]==(byte)-1){
-				return;
-			}
-			
-			byte[] b = new byte[1];
-			b[0]=(byte)0;
-			DatagramPacket  candidateRequest = new DatagramPacket(b,1,Hst, serverPort);
-			scket.send(candidateRequest);
-			byte [] candidateArray=  new byte[128];
-			DatagramPacket candidates = new DatagramPacket(candidateArray, candidateArray.length);
-			scket.receive(candidates);
-			System.out.println("Candidate list : " + new String(candidates.getData()));
-			System.out.println("Enter Id + Password +Candidate # : <id> <password> <vote>");
-			System.out.println("Enter id:");
-			 id= kbreader.nextInt();
-			System.out.println("Enter Password:");
-			pw = kbreader.next().toCharArray();
-			System.out.println("Enter vote:");
-			short vote= kbreader.nextShort();
-			
-			
-			Vote clientVote= new Vote(vote,id,pw);
-			byte[] voteArray= clientVote.toByteArray(); 
-			DatagramPacket newRequest = new DatagramPacket(voteArray, voteArray.length,
-					Hst, serverPort);
-			scket.send(newRequest);
-			
-			byte[] receiveBuffer = new byte[80];
-			DatagramPacket ack = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-			scket.receive(ack);
+		int id;
+		char[] password,name,district;
+		short vote;
+		Scanner kbreader = new Scanner(System.in);
+		System.out.print("Enter Id: ");				id = kbreader.nextInt();
+		System.out.print("Enter Password: ");		password = kbreader.next().toCharArray();
+		System.out.print("Enter name: ");			name = kbreader.next().toCharArray();
+		System.out.print("Enter district: ");		district=kbreader.next().toCharArray();
+		this.register(id,password,name,district);
 	
-			if( (int) ack.getData()[0] == 0){
-				System.out.println("Successful Vote");
-			}else{
-				System.out.println("unsuccessful Vote" + ack.getData()[0]);/*
-				while( (int) ack.getData()[0] != 0){
-					System.out.println("Candidate list : " + new String(reply.getData()));
-					System.out.println("Enter Id + Password +Candidate # : <id> <password> <vote>");
-					clientVote= new Vote(vote,id, pw);
-					byte[] retryvoteArray= clientVote.toByteArray(); 
-					DatagramPacket newrequest = new DatagramPacket(voteArray, retryvoteArray.length,
-							Hst, serverPort);
-					scket.send(newrequest);
-					byte[] retrybuffer = new byte[80];
-					DatagramPacket retryack = new DatagramPacket(retrybuffer, retrybuffer.length);
-					scket.receive(retryack);
-					ack=retryack;
-					
-				}*/
-			}
-				
-			
-		} catch (SocketException e) {
-			System.out.println("Socket: " + e.getMessage());
-		} catch (IOException e) {
-			System.out.println("IO: " + e.getMessage());
-		} finally {
-			if (scket != null)
-				scket.close();
+		String[] s = candidates.split("\n");
+		System.out.print("Candidate list:\n");
+		for(int i=0;i<s.length;i++){
+			System.out.println("\t"+s[i]);
 		}
+		System.out.print("Enter id: ");			id= kbreader.nextInt();
+		System.out.print("Enter Password: ");		password = kbreader.next().toCharArray();
+		System.out.print("Enter vote: ");			vote= kbreader.nextShort();
+		this.vote(vote,id,password);
+		
+		socket.close();
 	}
 	
 
