@@ -8,6 +8,8 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 
 import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 public class Client {
 	private String candidates;
@@ -18,12 +20,28 @@ public class Client {
 	private int timeout;
 	
 	public static void main(String args[]){
+		Client client = new Client(1000);
 		if(args.length<1){
 			System.out.println("No input files. Running single register/vote");
-			Client client = new Client(1000);
 			client.main();
 		} else {
 			String input = args[0].replaceFirst(".txt","") + ".txt";
+			BufferedReader br = null;
+			try{
+				String cLine;
+				br = new BufferedReader(new FileReader(input));
+				while ((cLine = br.readLine()) != null&& !cLine.equals("")) {
+					if(!cLine.startsWith("%")){
+						String[] s= cLine.split("-");
+						System.out.println("-------------------\n"+s[0]);
+						client.main(Integer.parseInt(s[0]),s[1].toCharArray(),s[2].toCharArray(),s[3].toCharArray(), Short.parseShort(s[4]));
+					}
+				}
+			} catch(IOException e){
+				e.printStackTrace();
+			} finally {
+				try{if (br != null)br.close();} catch(IOException e){e.printStackTrace();}
+			}
 		}
 	}
 	
@@ -123,7 +141,6 @@ public class Client {
 	public void main()
 	{
 		if(!getCandidates()){return;}
-		
 		int id;
 		char[] password,name,district;
 		short vote;

@@ -14,16 +14,19 @@ import java.io.FileReader;
 
 public class Server {
 	String candidates;
+	String outFile;
 	String[] clist;
 	ConcurrentLinkedQueue<DatagramPacket> packetQueue;	//message queue
 	TreeSet<DataObj> database;
 	DatagramSocket socket;
 	
 	public static void main(String[] args){
-		if(args.length<1){
-			System.out.println("Invalid arguments. use java Server <inputFile>");
+		if(args.length<2){
+			System.out.println("Invalid arguments. use java Server <inputFile> <outputFile>");
+			return;
 		}
-		String input = args[0].replaceFirst(".txt","") + ".txt";
+		String input  = args[0].replaceFirst(".txt","") + ".txt";
+		String output = args[1].replaceFirst(".txt","") + ".txt";
 		StringBuilder s = new StringBuilder();
 		BufferedReader br = null;
 		try{
@@ -37,12 +40,22 @@ public class Server {
 		} finally {
 			try{if (br != null)br.close();} catch(IOException e){e.printStackTrace();}
 		}
-		Server server = new Server(s.toString());
+		Server server = new Server(s.toString(),output);
+		
 	}
 	
-	public Server(String candidates,int port){
+	public Server(String candidates, String file){
+		this(candidates,file, 1000);
+	}
+	
+	public Server(String candidates, String file, int timeout){
+		this(candidates, file, timeout, 5555);
+	}
+	
+	public Server(String candidates, String file, int timeout, int port){
 		System.out.println("Starting Initialization");
 		this.candidates = candidates;
+		this.outFile = file;
 		this.clist = candidates.split("\n"); System.out.println(clist.length);
 		this.packetQueue = new ConcurrentLinkedQueue<DatagramPacket>();
 		try{
@@ -54,9 +67,9 @@ public class Server {
 		this.main();
 	}
 	
-	public Server(String candidates){
-		this(candidates,5555);
-	}
+
+	
+
 	
 	private void main(){
 		Thread t1 = new Thread(new Runnable(){

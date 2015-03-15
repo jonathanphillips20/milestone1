@@ -1,2 +1,2 @@
 @echo off
-start "Server" cmd.exe /k "set classpath=%cd%\bin & java Server Candidates.txt& pause"
+start "Server" cmd.exe /k "set classpath=%cd%\bin & java Server in-Candidates.txt output.txt& pause"

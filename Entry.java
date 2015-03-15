@@ -42,10 +42,10 @@ public class Entry {
 		  }
 		
 		
-		byte[] dist = (new String(this.district)).getBytes();
-		for(int i=0;i<dist.length;i++){
-			ret[37+i]=tempName[i];
-		}for(int i=dist.length;i<16;i++){
+		byte[] distTemp = (new String(this.district)).getBytes();
+		for(int i=0;i<distTemp.length;i++){
+			ret[37+i]=distTemp[i];
+		}for(int i=distTemp.length;i<16;i++){
 		      ret[37+i]=(byte)'\0';
 		  }
 		
