@@ -9,6 +9,8 @@ import java.net.InetAddress;
 
 import java.net.SocketException;
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 public class Server {
 	String candidates;
@@ -16,6 +18,27 @@ public class Server {
 	ConcurrentLinkedQueue<DatagramPacket> packetQueue;	//message queue
 	TreeSet<DataObj> database;
 	DatagramSocket socket;
+	
+	public static void main(String[] args){
+		if(args.length<1){
+			System.out.println("Invalid arguments. use java Server <inputFile>");
+		}
+		String input = args[0].replaceFirst(".txt","") + ".txt";
+		StringBuilder s = new StringBuilder();
+		BufferedReader br = null;
+		try{
+			String cLine;
+			br = new BufferedReader(new FileReader(input));
+			while ((cLine = br.readLine()) != null) {
+				s.append(cLine+"\n");
+			}
+		} catch(IOException e){
+			e.printStackTrace();
+		} finally {
+			try{if (br != null)br.close();} catch(IOException e){e.printStackTrace();}
+		}
+		Server server = new Server(s.toString());
+	}
 	
 	public Server(String candidates,int port){
 		System.out.println("Starting Initialization");

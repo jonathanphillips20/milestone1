@@ -1,0 +1,4 @@
+% ID "PASSWORD" "name" "dist" voteNum
+100881124 "thello" "Jonathan" "Ontario" 2
+100881125 hi" "James" "O" 1
+100881126 "asdf" "him" "kokf" 4

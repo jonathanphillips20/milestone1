@@ -17,6 +17,16 @@ public class Client {
 	private boolean quit;
 	private int timeout;
 	
+	public static void main(String args[]){
+		if(args.length<1){
+			System.out.println("No input files. Running single register/vote");
+			Client client = new Client(1000);
+			client.main();
+		} else {
+			String input = args[0].replaceFirst(".txt","") + ".txt";
+		}
+	}
+	
 	public Client(int port,int timeout){
 		this.port = port;
 		this.timeout=timeout;
@@ -25,7 +35,6 @@ public class Client {
 		try{this.host = InetAddress.getByName("localhost");}catch(UnknownHostException e){e.printStackTrace();}
 		this.quit=false;
 		System.out.println("Running on - " + host.getHostName() +":"+port);
-		this.main();
 	}
 	
 	public Client(int timeout){
