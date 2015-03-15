@@ -17,18 +17,22 @@ public class Server {
 	TreeSet<DataObj> database;
 	DatagramSocket socket;
 	
-	public Server(String candidates){
+	public Server(String candidates,int port){
 		System.out.println("Starting Initialization");
 		this.candidates = candidates;
 		this.clist = candidates.split("\n"); System.out.println(clist.length);
 		this.packetQueue = new ConcurrentLinkedQueue<DatagramPacket>();
 		try{
-			this.socket = new DatagramSocket(5555);
+			this.socket = new DatagramSocket(port);
 		} catch(SocketException e){	
 			e.printStackTrace();
 		}
 		this.database = new TreeSet<DataObj>();
 		this.main();
+	}
+	
+	public Server(String candidates){
+		this(candidates,5555);
 	}
 	
 	private void main(){
@@ -39,7 +43,6 @@ public class Server {
 					DatagramPacket receive = new DatagramPacket(buf,buf.length);
 					try{
 						socket.receive(receive);
-			
 					} catch ( IOException e) {
 						e.printStackTrace();
 					}
@@ -80,28 +83,34 @@ public class Server {
 		if(firstByte== (byte) 0){
 			System.out.println("List from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
 			ret = candidates.getBytes();
+			//TODO: return dynamic candidates.
 		} else if(firstByte == (byte) 1){
 			System.out.println("Vote from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
 			ret = new byte[1];
 			ret[0] = (byte) registerVote(data);
+			DatagramPacket r = new DatagramPacket(ret,ret.length,toProcess.getAddress(),toProcess.getPort());
 		} else if(firstByte == (byte) 2){
 			System.out.println("Entry from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
 			ret = new byte[1];
 			ret[0] = (byte) registerUser(data);
+			DatagramPacket r = new DatagramPacket(ret,ret.length,toProcess.getAddress(),toProcess.getPort());
+		} else if(firstByte == (byte) 3) {
+			System.out.println("Count req from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
+			ret = countRequest();
+			//TODO:return dynamic count.
 		} else {
 			System.out.println("UNKNOWN from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
 			ret = new byte[1];
 			ret[0] = (byte) -1;
+			DatagramPacket r = new DatagramPacket(ret,ret.length,toProcess.getAddress(),toProcess.getPort());
 		}
-		DatagramPacket r = new DatagramPacket(ret,ret.length,toProcess.getAddress(),toProcess.getPort());
 		try{
-		System.out.println(""+ret[0]);
 			socket.send(r);
 		} catch (IOException e){
 			e.printStackTrace();
 		}
 	}
-	
+	private void
 	private int registerUser(byte[] data){
 		Entry registration = Entry.toEntryObj(data);
 		DataObj in = new DataObj(registration.getLoginID(),registration.getLoginPW(), registration.getName(),registration.getDistrict());
@@ -130,17 +139,17 @@ public class Server {
 		String pass1 = (new String(n.getPass())).trim();
 		String pass2 = (new String(v.getPassword())).trim();
 		System.out.println("Pass1: '"+pass1+"'/nPass2:'"+pass2+"'");
-		if(!found){
+		if(!found){	//registered?
 			return 4;
 		}
-		if(n.getVoteNum()!=-1){
+		if(!pass1.equals(pass2)){	//password correct?
+			return 1;
+		}
+		if(n.getVoteNum()!=-1){	//already voted?
 			return 2;
 		}
-		if(v.getVoteNum()>clist.length||v.getVoteNum()==0){
+		if(v.getVoteNum()>clist.length||v.getVoteNum()==0){	//correct index?
 			return 3;
-		}
-		if(!pass1.equals(pass2)){
-			return 1;
 		}
 		n.setVoteNum(v.getVoteNum());
 		return 0;
