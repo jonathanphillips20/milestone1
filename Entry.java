@@ -21,13 +21,18 @@ public class Entry {
 	public char[] getDistrict() {return district;}
 	
 	public byte[] toByteArray(){
+<<<<<<< HEAD
 		byte[] ret = new byte[53];
+=======
+		byte[] ret = new byte[5+LoginPW.length+name.length + district.length];
+>>>>>>> 789a553d641949676c9c5f09e58e4dc1c3474f99
 		ret[0] = (byte) 2;
 		for(int i=0;i<4;i++){
 			ret[4-i] = (byte) (loginID>>(i*8));
 		}
 		
 		byte[] tempPW = (new String(this.LoginPW)).getBytes();
+<<<<<<< HEAD
 		for(int i=0;i<tempPW.length;i++){
 			ret[5+i]=tempPW[i];
 		} for(int i=tempPW.length;i<16;i++){
@@ -55,6 +60,21 @@ public class Entry {
 		    temp2[i]=ret[i+1];
 		} ret=temp2;
 		/**/
+=======
+		for(int i=0;i<this.LoginPW.length;i++){
+			ret[5+i]=tempPW[i];
+		}
+		
+		byte[] tempName = (new String(this.name)).getBytes();
+		for(int i=0;i<this.name.length;i++){
+			ret[5+LoginPW.length+i]=tempName[i];
+		}
+		
+		byte[] dist = (new String(this.district)).getBytes();
+		for(int i=0;i<this.district.length;i++){
+			ret[5+LoginPW.length+district.length+i]=tempName[i];
+		}
+>>>>>>> 789a553d641949676c9c5f09e58e4dc1c3474f99
 		
 		return ret;
 	}
@@ -68,20 +88,32 @@ public class Entry {
 		for(int i=0;i<temp.length;i++){
 			temp[i] = bytes[i+4];
 		}
+<<<<<<< HEAD
 		char[] password = (new String(temp).replaceAll("\0","")).toCharArray();
+=======
+		char[] password = (new String(temp)).toCharArray();
+>>>>>>> 789a553d641949676c9c5f09e58e4dc1c3474f99
 		
 		byte[] temp2 = new byte[16];
 		for(int i=0;i<temp2.length;i++){
 			temp2[i] = bytes[i+19];
 		}
+<<<<<<< HEAD
 		char[] name = (new String(temp2).replaceAll("\0","")).toCharArray();
+=======
+		char[] name = (new String(temp2)).toCharArray();
+>>>>>>> 789a553d641949676c9c5f09e58e4dc1c3474f99
 		
 		
 		byte[] temp3 = new byte[16];
 		for(int i=0;i<temp3.length;i++){
 			temp3[i] = bytes[i+34];
 		}
+<<<<<<< HEAD
 		char[] dist = (new String(temp3).replaceAll("\0","")).toCharArray();
+=======
+		char[] dist = (new String(temp3)).toCharArray();
+>>>>>>> 789a553d641949676c9c5f09e58e4dc1c3474f99
 		
 		return new Entry(loginID,password,name,dist);
 		
