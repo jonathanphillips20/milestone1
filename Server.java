@@ -110,7 +110,11 @@ public class Server {
 			e.printStackTrace();
 		}
 	}
-	private void
+	private byte[] countRequest(){
+		byte[] ret = new byte[(clist.length-1)*(2+4)];
+		return ret;
+	}
+	
 	private int registerUser(byte[] data){
 		Entry registration = Entry.toEntryObj(data);
 		DataObj in = new DataObj(registration.getLoginID(),registration.getLoginPW(), registration.getName(),registration.getDistrict());
