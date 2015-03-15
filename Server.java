@@ -6,19 +6,21 @@ import java.util.Arrays;
 import java.net.DatagramSocket;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
-
+import java.net.UnknownHostException;
 import java.net.SocketException;
-import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.FileReader;
+
+import java.io.*;
+
 
 public class Server {
-	String candidates;
-	String outFile;
-	String[] clist;
-	ConcurrentLinkedQueue<DatagramPacket> packetQueue;	//message queue
-	TreeSet<DataObj> database;
-	DatagramSocket socket;
+	private Thread[] t;
+	private String candidates;
+	private String outFile;
+	private String[] cList;
+	private ConcurrentLinkedQueue<DatagramPacket> packetQueue;	//message queue
+	private TreeSet<DataObj> database;
+	private DatagramSocket socket;
+	private boolean quit;
 	
 	public static void main(String[] args){
 		if(args.length<2){
@@ -54,9 +56,10 @@ public class Server {
 	
 	public Server(String candidates, String file, int timeout, int port){
 		System.out.println("Starting Initialization");
+		this.quit = false;
 		this.candidates = candidates;
 		this.outFile = file;
-		this.clist = candidates.split("\n"); System.out.println(clist.length);
+		this.cList = candidates.split("\n");
 		this.packetQueue = new ConcurrentLinkedQueue<DatagramPacket>();
 		try{
 			this.socket = new DatagramSocket(port);
@@ -67,14 +70,11 @@ public class Server {
 		this.main();
 	}
 	
-
-	
-
-	
 	private void main(){
+		t=new Thread[3];
 		Thread t1 = new Thread(new Runnable(){
 			public void run(){
-				while(true){
+				while(!quit){
 					byte[] buf = new byte[128];
 					DatagramPacket receive = new DatagramPacket(buf,buf.length);
 					try{
@@ -82,32 +82,51 @@ public class Server {
 					} catch ( IOException e) {
 						e.printStackTrace();
 					}
-					System.out.println("Packet from - "+receive.getAddress().getHostName()+":"+receive.getPort());
+					String from = receive.getAddress().getHostName();
+					String me = null;
+					try{me =  InetAddress.getLocalHost().getHostAddress();}catch(IOException e){e.printStackTrace();}
+					if(!from.equals(me)){System.out.println("Packet from - "+from+":"+receive.getPort());}
 					packetQueue.add(receive);
 				}
 			}
 		});
 		Thread t2 = new Thread(new Runnable(){
 			public void run(){
-				while(true){
+				while(!quit){
 					processPacket();
 				}
 			}
 		});
+		Thread t3 = new Thread(new MyRunnable(this));
+		t[0] = t1; t[1]=t2; t[2]=t3;
 
 		try{
 			System.out.println("Starting Server...");
 			t1.start();
 			t2.start();
+			t3.start();
 			t1.join();
 			t2.join();
+			t3.join();
+			countRequest(true);
 		} catch(InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
-	private void processPacket(){
+	
+	public void endVote(){
+		this.quit=true;
+		byte[] garbage = new byte[1];
+		garbage[0] = (byte) -5;
+		try{
+			DatagramPacket p = new DatagramPacket(garbage,garbage.length,InetAddress.getLocalHost(), 5555);
+			socket.send(p);
+		}catch(IOException e){e.printStackTrace();}
+	}
+	
+	private boolean processPacket(){
 		DatagramPacket toProcess = packetQueue.poll();
-		if(toProcess==null){return;}
+		if(toProcess==null){return false;}
 		byte[] data = toProcess.getData();
 		byte firstByte = data[0];
 		byte[] temp = new byte[data.length-1];
@@ -122,7 +141,7 @@ public class Server {
 			//TODO: return dynamic candidates.
 		} else if(firstByte == (byte) 1) {
 			System.out.println("Count req from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
-			ret = countRequest();
+			ret = countRequest(false);
 			//TODO:return dynamic count.
 		} else if(firstByte == (byte) 2){
 			System.out.println("Vote from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
@@ -136,24 +155,60 @@ public class Server {
 			System.out.println("UNKNOWN from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
 			ret = new byte[1];
 			ret[0] = (byte) -1;
-		}
+		} System.out.print("----------\n");
 		try{
 			DatagramPacket r = new DatagramPacket(ret,ret.length,toProcess.getAddress(),toProcess.getPort());
 			socket.send(r);
-		} catch (IOException e){
+		} catch( IOException e){
 			e.printStackTrace();
 		}
+		return true;
 	}
-	private byte[] countRequest(){
-		byte[] ret = new byte[(clist.length-1)*(2+4)];
+	
+	private byte[] countRequest(boolean toFile){
+		Iterator<DataObj> itr = database.iterator();
+		DataObj n = null;
+		int[] count = new int[cList.length];
+		for(int i=0;i<cList.length;i++){
+			count[i]=0;
+		}
+		
+		Writer writer = null;
+		try{ 
+			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8"));
+
+			while(itr.hasNext()){
+				n=itr.next();
+				int voteNum = (int) n.getVoteNum();
+				if((writer!=null)&&toFile){
+					if(voteNum!=-1){writer.write(n.getID() + " voted for \"" + cList[voteNum-1]+"\"");}
+					else{writer.write(n.getID() + " registered but has not voted");}
+					writer.write("\n");
+				}
+				if(voteNum>0){count[voteNum-1]+=1;}
+			}
+		} catch(IOException e){
+			e.printStackTrace();
+		} finally{try {writer.close();} catch (Exception e) {}}
+
+		
+		byte[] ret = new byte[(cList.length-1)*(2+4)];
+		for(int i=0;i<cList.length;i++){
+			System.out.println("\""+cList[i] + "\" totaled " + count[i] + " votes");
+			ret[i+1] = (byte) ((short)i>>8);
+			ret[i+2] = (byte) ((short)i);
+			for(int j=0;j<4;j++){
+				ret[i+2+j] = (byte) (count[i]>>(j*8));
+			}
+		}
+		
 		return ret;
 	}
 	
 	private int registerUser(byte[] data){
 		Entry registration = Entry.toEntryObj(data);
 		DataObj in = new DataObj(registration.getLoginID(),registration.getLoginPW(), registration.getName(),registration.getDistrict());
-		System.out.println("" + (int) in.getID() + " " + new String(in.getName()) + " " + new String(registration.getDistrict()) + " " + new String(in.getPass()));
-
+		
 		if(database.add(in)){
 			return 0;
 		} 
@@ -173,10 +228,10 @@ public class Server {
 				found=true;
 			}
 		}
+		
 		System.out.println(found+" " + (short)n.getVoteNum() + " " + (int)dvobj.getID());
 		String pass1 = (new String(n.getPass())).trim();
 		String pass2 = (new String(v.getPassword())).trim();
-		System.out.println("Pass1: '"+pass1+"'/nPass2:'"+pass2+"'");
 		if(!found){	//registered?
 			return 4;
 		}
@@ -186,7 +241,7 @@ public class Server {
 		if(n.getVoteNum()!=-1){	//already voted?
 			return 2;
 		}
-		if(v.getVoteNum()>clist.length||v.getVoteNum()==0){	//correct index?
+		if(v.getVoteNum()>cList.length||v.getVoteNum()==0){	//correct index?
 			return 3;
 		}
 		n.setVoteNum(v.getVoteNum());
@@ -245,5 +300,21 @@ public class Server {
 		public short getVoteNum(){return voteNum;}
 		
 		public void setVoteNum(short voteNum){this.voteNum = voteNum;}
+	}
+
+	private class MyRunnable implements Runnable{
+		Server s;
+		
+		public MyRunnable(Server s){
+			this.s = s;
+		}
+		
+		public void run(){
+			try{
+				System.in.read();
+			} catch(IOException e){
+				e.printStackTrace();
+			} finally{s.endVote();}
+		}
 	}
 }
