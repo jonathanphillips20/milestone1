@@ -108,11 +108,7 @@ public class Server {
 	}
 	
 	private boolean registerUser(byte[] data){
-		byte[] temp = new byte[data.length-1];
-		for(int i=0;i<(data.length-1);i++){
-			temp[i] = data[i+1];
-		}
-		Entry registration = Entry.toEntryObj(temp);
+		Entry registration = Entry.toEntryObj(data);
 		DataObj in = new DataObj(registration.getLoginID(),registration.getLoginPW(), registration.getName(),registration.getDistrict());
 		System.out.println("" + registration.getLoginID() + "/n" + new String(registration.getName()) + "/n" + new String(registration.getDistrict()) + "/n" + new String(registration.getLoginPW()));
 
@@ -123,11 +119,7 @@ public class Server {
 	}
 	
 	private boolean registerVote(byte[] data){
-		byte[] temp = new byte[data.length-1];
-		for(int i=0;i<(data.length-1);i++){
-			temp[i] = data[i+1];
-		}
-		Vote v = Vote.toVoteObj(temp);
+		Vote v = Vote.toVoteObj(data);
 		DataObj dvobj = new DataObj(v.getVoteID());
 		
 		Iterator<DataObj> itr = database.iterator();

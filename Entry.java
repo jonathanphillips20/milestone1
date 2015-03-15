@@ -49,7 +49,7 @@ public class Entry {
 		      ret[37+i]=(byte)'\0';
 		  }
 		
-		/**/
+		/*test
 		byte[] temp2 = new byte[ret.length-1];
 		for(int i=0;i<temp2.length;i++){
 		    temp2[i]=ret[i+1];
