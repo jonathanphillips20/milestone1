@@ -50,9 +50,10 @@ public class Client {
         this.timeout=timeout;
         try{this.socket = new DatagramSocket();}catch(SocketException e){e.printStackTrace();}
         try{socket.setSoTimeout(timeout);}catch(SocketException e){e.printStackTrace();}
-        try{this.host = InetAddress.getByName("localhost");}catch(UnknownHostException e){e.printStackTrace();}
+        try{this.host = InetAddress.getLocalHost();}catch(UnknownHostException e){e.printStackTrace();}
         this.quit=false;
-        System.out.println("Running on - " + host.getHostName() +":"+port);
+		System.out.println(""+(host==null) + " " + (socket==null));
+        System.out.println("Running on - " + host.getHostAddress() +":"+port);
     }
 
     public Client(int timeout){
