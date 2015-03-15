@@ -119,7 +119,23 @@ public class Client {
         return false;
     }
 
-    public boolean getCandidates(){
+    public boolean populateCandidates(){
+        byte[] b = new byte[1]; b[0]=(byte)0;
+        DatagramPacket candidateRequest = new DatagramPacket(b,1,host, port);
+        try{socket.send(candidateRequest);}catch(IOException e){e.printStackTrace();}
+        System.out.println("Sent request for candidates");
+
+        byte[] buffer = new byte[80];
+        DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+        try{socket.receive(reply);}catch(SocketTimeoutException e){System.out.println("Socket Timed out"); return false;}
+        catch(IOException e){e.printStackTrace();}
+        System.out.println("Received reply (candidates)\n");
+
+        this.candidates = new String(reply.getData());
+        return true;
+    }
+	
+	public boolean getCandidates(){
         byte[] b = new byte[1]; b[0]=(byte)0;
         DatagramPacket candidateRequest = new DatagramPacket(b,1,host, port);
         try{socket.send(candidateRequest);}catch(IOException e){e.printStackTrace();}
@@ -141,7 +157,7 @@ public class Client {
 
     public void main()
     {
-        if(!getCandidates()){return;}
+        if(!populateCandidates()){return;}
         int id;
         char[] password,name,district;
         short vote;

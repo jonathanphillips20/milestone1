@@ -1,8 +1,8 @@
-100881110 voted forJane Doe
-100881111 voted forJane Doe
-100881112 voted forJane Doe
-100881113 voted forJane Doe
-100881124 voted forJane Doe
-100881125 voted forJohn Doe
-100881126 voted forJames Smith
-100881129 voted forJohn Doe
+100881110 voted for "Jane Doe"
+100881111 voted for "Jane Doe"
+100881112 voted for "Jane Doe"
+100881113 voted for "Jane Doe"
+100881124 voted for "Jane Doe"
+100881125 voted for "John Doe"
+100881126 voted for "James Smith"
+100881129 voted for "John Doe"

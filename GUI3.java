@@ -21,7 +21,7 @@ public class GUI3 extends JFrame {
     public GUI3()
     {	
         super("CLIENT");
-        button = new JButton[4];
+        button = new JButton[3];
 
         this.makeFrame();         // call makeFrame method
         this.makePanel();         // call makePanel method	
@@ -38,23 +38,21 @@ public class GUI3 extends JFrame {
     private void makePanel()
     {
         // panel is assigned a new JPanel with a BorderLayout
-        this.panel = new JPanel(new GridLayout(4,1));
+        this.panel = new JPanel(new GridLayout(3,1));
 
-        button[0] = new JButton("Register As Candidate");
-        button[0].setActionCommand("Register As Candidate");
-        this.panel.add( button[0] );
+       
 
-        button[1] = new JButton("Register As Voter");
-        button[1].setActionCommand("Register As Voter");
+        button[0] = new JButton("Register As Voter");
+        button[0].setActionCommand("Register As Voter");
+        this.panel.add(button[0]);
+
+        button[1] = new JButton("Vote For Candidate");
+        button[1].setActionCommand("Vote For Candidate");
         this.panel.add(button[1]);
 
-        button[2] = new JButton("Vote For Candidate");
-        button[2].setActionCommand("Vote For Candidate");
+        button[2] = new JButton("EXIT");
+        button[2].setActionCommand("EXIT");
         this.panel.add(button[2]);
-
-        button[3] = new JButton("EXIT");
-        button[3].setActionCommand("EXIT");
-        this.panel.add(button[3]);
 
         this.add(this.panel);        // adds panel to the frame
     }

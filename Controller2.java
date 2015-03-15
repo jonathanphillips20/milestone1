@@ -1,3 +1,4 @@
+import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -9,12 +10,14 @@ public class Controller2 implements ActionListener {
     private GUI2 gui2;
     private GUI3 gui3;
     private GUI4 gui4;
-    private DialogBox messagebox;
+    private Dialog messagebox;
+    private Client cl;
 
     public Controller2(GUI3 gui3)
     {
-        this.gui3 = gui3;
-       // this.client = new Client();
+       this.gui3 = gui3;
+       this.cl = new Client();
+	   this.gui2.getLabel(3).setText(cl.getCandidate());
     }
 
     @Override
@@ -23,27 +26,25 @@ public class Controller2 implements ActionListener {
         String action = arg0.getActionCommand();
 
         if (action.equals("Register Voter")) {
-            String Username = gui.getText(0).getText();
-            String Password = gui.getText(1).getText();
-            System.out.println(Username);
-            System.out.println(Password);
+            String username = gui.getText(0).getText();
+            String password = gui.getText(1).getText();
+            String name = gui.getText(2).getText();
+            String dist = gui.getText(3).getText();
+            cl.register(Integer.parseInt(username), 
+            			password.toCharArray(), 
+            			name.toCharArray(), 
+            			dist.toCharArray());
+            
         }
-        else if (action.equals("Register Party")) {
-            String Username = gui4.getText(0).getText();
-            String Password = gui4.getText(1).getText();
-            String ID = gui4.getText(2).getText();
-            System.out.println(Username);
-            System.out.println(Password);
-            System.out.println(ID);
-        }
+        
         else if (action.equals("Vote")) {
 
-            String ID = gui2. getText(0).getText();
-            String Password  = gui2.getText(1).getText();
-            String Candidate = gui2.getText(2).getText();
-            System.out.println(ID);
-            System.out.println(Password);
-            System.out.println(Candidate);
+            String id = gui2. getText(0).getText();
+            String password  = gui2.getText(1).getText();
+            String candidate = gui2.getText(2).getText();
+           cl.vote(Short.parseShort(candidate), 
+        		   Integer.parseInt(id), 
+        		   password.toCharArray());
         }
         else if (action.equals("Vote For Candidate")) {
             gui3.dispose();

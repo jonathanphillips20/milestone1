@@ -19,8 +19,8 @@ public class GUI2 extends JFrame{
     {   
         super("VOTE");
         button = new JButton[2];
-        label = new JLabel[3];
-        Text = new JTextField[3];
+        label = new JLabel[4];
+        Text = new JTextField[4];
 
         this.makeFrame();         // call makeFrame method
         this.makePanel();         // call makePanel method  
@@ -48,7 +48,8 @@ public class GUI2 extends JFrame{
          Text[1] = new JTextField();         this.panel.add( Text[1]);
         label[2] = new JLabel("Candidate:"); this.panel.add(label[2]);
          Text[2] = new JTextField();         this.panel.add( Text[2]);
-
+		label[3] = new JLabel("Current Canidates:");  this.panel.add(label[3]);
+         Text[3] = new JTextField();         this.panel.add( Text[3]);
         button[0] = new JButton("Vote");
         button[0].setActionCommand("Vote");
         this.panel.add(button[0]);

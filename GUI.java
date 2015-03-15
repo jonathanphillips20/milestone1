@@ -23,8 +23,8 @@ public class GUI extends JFrame
     {   
         super("Registrations For Voter");
         button = new JButton[2];
-        label = new JLabel[2];
-        Text = new JTextField[2];
+        label = new JLabel[5];
+        Text = new JTextField[5];
 
         this.makeFrame();         // call makeFrame method
         this.makePanel();         // call makePanel method  
@@ -41,22 +41,28 @@ public class GUI extends JFrame
     private void makePanel()
     {
         // panel is assigned a new JPanel with a BorderLayout
-        this.panel = new JPanel(new GridLayout(4,2));
+        this.panel = new JPanel(new GridLayout(6,2));
 
-        label[0] = new JLabel("Username:");  this.panel.add(label[0]);
+         label[0] = new JLabel("Username:");  this.panel.add(label[0]);
          Text[0] = new JTextField();         this.panel.add( Text[0]);
-        label[1] = new JLabel("Password:");  this.panel.add(label[1]);
+         label[1] = new JLabel("Password:");  this.panel.add(label[1]);
          Text[1] = new JTextField();         this.panel.add( Text[1]);
+         label[2] = new JLabel("Name:");     this.panel.add(label[2]);
+         Text[2] = new JTextField();         this.panel.add( Text[2]);
+         label[3] = new JLabel("District");  this.panel.add(label[3]);
+         Text[3] = new JTextField();         this.panel.add( Text[3]);
+		 label[4] = new JLabel("Current Canidates:");  this.panel.add(label[4]);
+         Text[4] = new JTextField();         this.panel.add( Text[4]);
 
-        button[0] =new JButton("Register");
-        button[0].setActionCommand("Register Voter");
-        this.panel.add( button[0] );
+         button[0] =new JButton("Register");
+         button[0].setActionCommand("Register Voter");
+         this.panel.add( button[0] );
 
-        button[1] =new JButton("GO BACK");
-        button[1].setActionCommand("GO BACK1");
-        this.panel.add( button[1] );
+         button[1] =new JButton("GO BACK");
+         button[1].setActionCommand("GO BACK1");
+         this.panel.add( button[1] );
 
-        this.add(this.panel); // adds panel to the frame
+         this.add(this.panel); // adds panel to the frame
     }
 
     public void addController(Controller2 controller)

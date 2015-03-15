@@ -123,6 +123,7 @@ public class Server {
         if(firstByte== (byte) 0){
             System.out.println("List from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
             ret = candidates.getBytes();
+			Data
             //TODO: return dynamic candidates.
         } else if(firstByte == (byte) 1) {
             System.out.println("Count req from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
