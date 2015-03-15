@@ -21,26 +21,40 @@ public class Entry {
 	public char[] getDistrict() {return district;}
 	
 	public byte[] toByteArray(){
-		byte[] ret = new byte[5+LoginPW.length+name.length + district.length];
+		byte[] ret = new byte[53];
 		ret[0] = (byte) 2;
 		for(int i=0;i<4;i++){
 			ret[4-i] = (byte) (loginID>>(i*8));
 		}
 		
 		byte[] tempPW = (new String(this.LoginPW)).getBytes();
-		for(int i=0;i<this.LoginPW.length;i++){
+		for(int i=0;i<tempPW.length;i++){
 			ret[5+i]=tempPW[i];
-		}
+		} for(int i=tempPW.length;i<16;i++){
+		      ret[5+i]=(byte)'\0';
+		  }
 		
 		byte[] tempName = (new String(this.name)).getBytes();
-		for(int i=0;i<this.name.length;i++){
-			ret[5+LoginPW.length+i]=tempName[i];
-		}
+		for(int i=0;i<tempName.length;i++){
+			ret[21+i]=tempName[i];
+		}for(int i=tempName.length;i<16;i++){
+		      ret[21+i]=(byte)'\0';
+		  }
+		
 		
 		byte[] dist = (new String(this.district)).getBytes();
-		for(int i=0;i<this.district.length;i++){
-			ret[5+LoginPW.length+district.length+i]=tempName[i];
-		}
+		for(int i=0;i<dist.length;i++){
+			ret[37+i]=tempName[i];
+		}for(int i=dist.length;i<16;i++){
+		      ret[37+i]=(byte)'\0';
+		  }
+		
+		/*test
+		byte[] temp2 = new byte[ret.length-1];
+		for(int i=0;i<temp2.length;i++){
+		    temp2[i]=ret[i+1];
+		} ret=temp2;
+		/**/
 		
 		return ret;
 	}
@@ -54,20 +68,20 @@ public class Entry {
 		for(int i=0;i<temp.length;i++){
 			temp[i] = bytes[i+4];
 		}
-		char[] password = (new String(temp)).toCharArray();
+		char[] password = (new String(temp).replaceAll("\0","")).toCharArray();
 		
 		byte[] temp2 = new byte[16];
 		for(int i=0;i<temp2.length;i++){
 			temp2[i] = bytes[i+19];
 		}
-		char[] name = (new String(temp2)).toCharArray();
+		char[] name = (new String(temp2).replaceAll("\0","")).toCharArray();
 		
 		
 		byte[] temp3 = new byte[16];
 		for(int i=0;i<temp3.length;i++){
 			temp3[i] = bytes[i+34];
 		}
-		char[] dist = (new String(temp3)).toCharArray();
+		char[] dist = (new String(temp3).replaceAll("\0","")).toCharArray();
 		
 		return new Entry(loginID,password,name,dist);
 		

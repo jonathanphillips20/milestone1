@@ -157,7 +157,7 @@ public class Server {
 		public DataObj(int id, char[] pass, char[] name, char[] dist){
 			this.id = id;
 			this.pass = pass;
-			this.voteNum = -1;
+			this.voteNum = (short) -1;
 			this.name = name;
 			this.dist=dist;
 		}
