@@ -11,22 +11,26 @@ public class Vote {
 		this.password = password;
 	}
 	
+	public short getVoteNum(){return voteNum;}
+	public int getVoteID(){return loginID;}
+	
 	public byte[] toByteArray(){
-		byte[] ret = new byte[6+password.length];
+		byte[] ret = new byte[7+password.length];
 		
+		ret[0] = (byte) 1;
 		//encode short in two bytes.
-		ret[0] = (byte) (voteNum>>8);	//high byte of short
-		ret[1] = (byte) (voteNum);		//low  byte of short
+		ret[1] = (byte) (voteNum>>8);	//high byte of short
+		ret[2] = (byte) (voteNum);		//low  byte of short
 		
 		//encode int in four bytes.
 		for(int i=0;i<4;i++){
-			ret[5-i] = (byte) (loginID>>(i*8));
+			ret[6-i] = (byte) (loginID>>(i*8));
 		}
 		
 		//encode char[] in "x" bytes.
 		byte[] temp = (new String(password)).getBytes();
 		for(int i=0;i<password.length;i++){
-			ret[6+i]=temp[i];
+			ret[7+i]=temp[i];
 		}
 		
 		//return encoded Vote object.
@@ -34,11 +38,11 @@ public class Vote {
 	}
 	
 	public static Vote toVoteObj(byte[] bytes){
-		short voteNum = (short) (bytes[0]<<8 | bytes[1]);
-		int loginID = (int) (bytes[2]<<8*3 | bytes[3]<<8*2 | bytes[4]<<8 | bytes[5]);
-		byte[] temp = new byte[bytes.length-6];
+		short voteNum = (short) (bytes[1]<<8 | bytes[0]);
+		int loginID = (int) (bytes[3]<<8*3 | bytes[2]<<8*2 | bytes[5]<<8 | bytes[4]);
+		byte[] temp = new byte[bytes.length-7];
 		for(int i=0;i<temp.length;i++){
-			temp[i] = bytes[i+6];
+			temp[i] = bytes[i+7];
 		}
 		char[] password = (new String(temp)).toCharArray();
 		return new Vote(voteNum,loginID,password);

@@ -2,7 +2,12 @@ import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 public class Client {
-	public static void main(String args[]) throws Exception
+
+	public Client(){
+		this.main();
+	}
+
+	public void main()
 	{
 		DatagramSocket scket = null;
 		Scanner kbreader = new Scanner(System.in);
@@ -22,10 +27,9 @@ public class Client {
 			
 			InetAddress Hst = InetAddress.getByName("localhost");
 			
-			int serverPort = 9878;//Random port
+			int serverPort =5555;//Random port
 		
-			DatagramPacket request = new DatagramPacket(entryArray, entryArray.length,
-					Hst, serverPort);
+			DatagramPacket request = new DatagramPacket(entryArray, entryArray.length, Hst, serverPort);
 			scket.send(request);
 			
 			byte[] buffer = new byte[80];
@@ -35,9 +39,10 @@ public class Client {
 				return;
 			}
 			
-			DatagramPacket  candidateRequest = new DatagramPacket(new byte[1]={(byte)0}, 1,
-					Hst, serverPort);
-			scket.send(request);
+			byte[] b = new byte[1];
+			b[0]=(byte)0;
+			DatagramPacket  candidateRequest = new DatagramPacket(b,1,Hst, serverPort);
+			scket.send(candidateRequest);
 			byte [] candidateArray=  new byte[128];
 			DatagramPacket candidates = new DatagramPacket(candidateArray, candidateArray.length);
 			scket.receive(candidates);
@@ -64,7 +69,7 @@ public class Client {
 			if( (int) ack.getData()[0] == 0){
 				System.out.println("Successful Vote");
 			}else{
-				System.out.println("unsuccessful Vote");
+				System.out.println("unsuccessful Vote" + ack.getData()[0]);/*
 				while( (int) ack.getData()[0] != 0){
 					System.out.println("Candidate list : " + new String(reply.getData()));
 					System.out.println("Enter Id + Password +Candidate # : <id> <password> <vote>");
@@ -78,7 +83,7 @@ public class Client {
 					scket.receive(retryack);
 					ack=retryack;
 					
-				}
+				}*/
 			}
 				
 			
