@@ -1,6 +1,7 @@
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.TreeSet;
 import java.util.Iterator;
+import java.util.Arrays;
 
 import java.net.DatagramSocket;
 import java.net.DatagramPacket;
@@ -127,19 +128,20 @@ public class Server {
 			temp[i] = data[i+1];
 		}
 		Vote v = Vote.toVoteObj(temp);
-	
+		DataObj dvobj = new DataObj(v.getVoteID());
+		
 		Iterator<DataObj> itr = database.iterator();
 		boolean found=false;
 		DataObj n = null;
 		while(!found&&itr.hasNext()){
 			n=itr.next();
-			if(n.equals(v)){
+			if(n.equals(dvobj)){
 				found=true;
 			}
 		}
-		System.out.println(found+" " + v.getVoteNum() + " " + v.getVoteID());
-		if(found){
-			n.setVoteNum(n.getVoteNum());
+		System.out.println(found+" " + dvobj.getVoteNum() + " " + dvobj.getID());
+		if(found&&n.getVoteNum()==-1&&Arrays.equals(n.getPass(),v.getPassword())){
+			n.setVoteNum(v.getVoteNum());
 			return true;
 		}
 		return false;
@@ -158,6 +160,10 @@ public class Server {
 			this.voteNum = -1;
 			this.name = name;
 			this.dist=dist;
+		}
+		
+		private DataObj(int id){
+			this.id=id;
 		}
 		
 		@Override
