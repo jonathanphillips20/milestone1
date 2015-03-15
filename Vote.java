@@ -20,7 +20,7 @@ public class Vote {
 	public byte[] toByteArray(){
 		byte[] ret = new byte[7+password.length];
 		
-		ret[0] = (byte) 1;
+		ret[0] = (byte) 2;
 		//encode short in two bytes.
 		ret[1] = (byte) (voteNum>>8);	//high byte of short
 		ret[2] = (byte) (voteNum);		//low  byte of short

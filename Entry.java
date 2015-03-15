@@ -22,7 +22,7 @@ public class Entry {
 	
 	public byte[] toByteArray(){
 		byte[] ret = new byte[53];
-		ret[0] = (byte) 2;
+		ret[0] = (byte) 3;
 		for(int i=0;i<4;i++){
 			ret[4-i] = (byte) (loginID>>(i*8));
 		}

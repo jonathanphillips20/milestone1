@@ -84,27 +84,25 @@ public class Server {
 			System.out.println("List from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
 			ret = candidates.getBytes();
 			//TODO: return dynamic candidates.
-		} else if(firstByte == (byte) 1){
-			System.out.println("Vote from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
-			ret = new byte[1];
-			ret[0] = (byte) registerVote(data);
-			DatagramPacket r = new DatagramPacket(ret,ret.length,toProcess.getAddress(),toProcess.getPort());
-		} else if(firstByte == (byte) 2){
-			System.out.println("Entry from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
-			ret = new byte[1];
-			ret[0] = (byte) registerUser(data);
-			DatagramPacket r = new DatagramPacket(ret,ret.length,toProcess.getAddress(),toProcess.getPort());
-		} else if(firstByte == (byte) 3) {
+		} else if(firstByte == (byte) 1) {
 			System.out.println("Count req from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
 			ret = countRequest();
 			//TODO:return dynamic count.
+		} else if(firstByte == (byte) 2){
+			System.out.println("Vote from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
+			ret = new byte[1];
+			ret[0] = (byte) registerVote(data);
+		} else if(firstByte == (byte) 3){
+			System.out.println("Entry from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
+			ret = new byte[1];
+			ret[0] = (byte) registerUser(data);
 		} else {
 			System.out.println("UNKNOWN from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
 			ret = new byte[1];
 			ret[0] = (byte) -1;
-			DatagramPacket r = new DatagramPacket(ret,ret.length,toProcess.getAddress(),toProcess.getPort());
 		}
 		try{
+			DatagramPacket r = new DatagramPacket(ret,ret.length,toProcess.getAddress(),toProcess.getPort());
 			socket.send(r);
 		} catch (IOException e){
 			e.printStackTrace();

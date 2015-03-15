@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.net.SocketTimeoutException;
 
 import java.net.DatagramSocket;
 import java.net.DatagramPacket;
@@ -14,18 +15,25 @@ public class Client {
 	private DatagramSocket socket;
 	private InetAddress host;
 	private boolean quit;
+	private int timeout;
 	
-	public Client(int port){
+	public Client(int port,int timeout){
 		this.port = port;
+		this.timeout=timeout;
 		try{this.socket = new DatagramSocket();}catch(SocketException e){e.printStackTrace();}
+		try{socket.setSoTimeout(timeout);}catch(SocketException e){e.printStackTrace();}
 		try{this.host = InetAddress.getByName("localhost");}catch(UnknownHostException e){e.printStackTrace();}
 		this.quit=false;
 		System.out.println("Running on - " + host.getHostName() +":"+port);
 		this.main();
 	}
 	
+	public Client(int timeout){
+		this(5555,timeout);
+	}
+	
 	public Client(){
-		this(5555);
+		this(0);
 	}
 	
 	public boolean register(int id, char[] password, char[] name, char[] district){
@@ -41,7 +49,9 @@ public class Client {
 		
 		byte[] buffer = new byte[80];
 		DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-		try{socket.receive(reply);}catch(IOException e){e.printStackTrace();}
+		try{socket.receive(reply);}catch(SocketTimeoutException e){System.out.println("Socket Timed out"); return false;}
+			catch(IOException e){e.printStackTrace();}
+			
 		if(reply.getData()[0]==(byte)-1){
 			System.out.println("ID already registered\n");
 			return false;
@@ -62,7 +72,8 @@ public class Client {
 		
 		byte[] buffer = new byte[80];
 		DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-		try{socket.receive(reply);}catch(IOException e){e.printStackTrace();}
+		try{socket.receive(reply);}catch(SocketTimeoutException e){System.out.println("Socket Timed out"); return false;}
+			catch(IOException e){e.printStackTrace();}
 		if( reply.getData()[0] == (byte) 0){
 			System.out.println("vote Registered\n"); 
 			return true;
@@ -80,7 +91,7 @@ public class Client {
 		return false;
 	}
 	
-	public void getCandidates(){
+	public boolean getCandidates(){
 		byte[] b = new byte[1]; b[0]=(byte)0;
 		DatagramPacket candidateRequest = new DatagramPacket(b,1,host, port);
 		try{socket.send(candidateRequest);}catch(IOException e){e.printStackTrace();}
@@ -88,10 +99,12 @@ public class Client {
 		
 		byte[] buffer = new byte[80];
 		DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-		try{socket.receive(reply);}catch(IOException e){e.printStackTrace();}
+		try{socket.receive(reply);}catch(SocketTimeoutException e){System.out.println("Socket Timed out"); return false;}
+			catch(IOException e){e.printStackTrace();}
 		System.out.println("Received reply (candidates)\n");
 		
 		this.candidates = new String(reply.getData());
+		return true;
 	}
 	
 	public void quit(){
@@ -100,7 +113,7 @@ public class Client {
 	
 	public void main()
 	{
-		getCandidates();
+		if(!getCandidates()){return;}
 		
 		int id;
 		char[] password,name,district;
@@ -110,7 +123,7 @@ public class Client {
 		System.out.print("Enter Password: " );		password = kbreader.next().toCharArray();
 		System.out.print("Enter name: ");			name = kbreader.next().toCharArray();
 		System.out.print("Enter district: ");		district=kbreader.next().toCharArray();
-		this.register(id,password,name,district);
+		if(!this.register(id,password,name,district)){return;}
 	
 		String[] s = candidates.split("\n");
 		System.out.print("Candidate list:\n");
@@ -120,7 +133,7 @@ public class Client {
 		System.out.print("Enter id: ");			id= kbreader.nextInt();
 		System.out.print("Enter Password: ");		password = kbreader.next().toCharArray();
 		System.out.print("Enter vote: ");			vote= kbreader.nextShort();
-		this.vote(vote,id,password);
+		if(!this.vote(vote,id,password)){return;}
 		
 		socket.close();
 	}
