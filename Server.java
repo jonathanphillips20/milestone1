@@ -12,6 +12,7 @@ import java.io.IOException;
 
 public class Server {
 	String candidates;
+	String[] clist;
 	ConcurrentLinkedQueue<DatagramPacket> packetQueue;	//message queue
 	TreeSet<DataObj> database;
 	DatagramSocket socket;
@@ -19,6 +20,7 @@ public class Server {
 	public Server(String candidates){
 		System.out.println("Starting Initialization");
 		this.candidates = candidates;
+		this.clist = candidates.split("\n"); System.out.println(clist.length);
 		this.packetQueue = new ConcurrentLinkedQueue<DatagramPacket>();
 		try{
 			this.socket = new DatagramSocket(5555);
@@ -81,19 +83,11 @@ public class Server {
 		} else if(firstByte == (byte) 1){
 			System.out.println("Vote from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
 			ret = new byte[1];
-			if(registerVote(data)){
-				ret[0] = (byte) 0;
-			} else {
-				ret[0] = (byte) -1;
-			}
+			ret[0] = (byte) registerVote(data);
 		} else if(firstByte == (byte) 2){
 			System.out.println("Entry from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
 			ret = new byte[1];
-			if(registerUser(data)){
-				ret[0] = (byte) 0;
-			} else {
-				ret[0] = (byte) -1;
-			}
+			ret[0] = (byte) registerUser(data);
 		} else {
 			System.out.println("UNKNOWN from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
 			ret = new byte[1];
@@ -101,24 +95,25 @@ public class Server {
 		}
 		DatagramPacket r = new DatagramPacket(ret,ret.length,toProcess.getAddress(),toProcess.getPort());
 		try{
+		System.out.println(""+ret[0]);
 			socket.send(r);
 		} catch (IOException e){
 			e.printStackTrace();
 		}
 	}
 	
-	private boolean registerUser(byte[] data){
+	private int registerUser(byte[] data){
 		Entry registration = Entry.toEntryObj(data);
 		DataObj in = new DataObj(registration.getLoginID(),registration.getLoginPW(), registration.getName(),registration.getDistrict());
-		System.out.println("" + registration.getLoginID() + "/n" + new String(registration.getName()) + "/n" + new String(registration.getDistrict()) + "/n" + new String(registration.getLoginPW()));
+		System.out.println("" + (int) in.getID() + " " + new String(in.getName()) + " " + new String(registration.getDistrict()) + " " + new String(in.getPass()));
 
 		if(database.add(in)){
-			return true;
+			return 0;
 		} 
-		return false;
+		return -1;
 	}
 	
-	private boolean registerVote(byte[] data){
+	private int registerVote(byte[] data){
 		Vote v = Vote.toVoteObj(data);
 		DataObj dvobj = new DataObj(v.getVoteID());
 		
@@ -131,12 +126,24 @@ public class Server {
 				found=true;
 			}
 		}
-		System.out.println(found+" " + dvobj.getVoteNum() + " " + dvobj.getID());
-		if(found&&n.getVoteNum()==-1&&Arrays.equals(n.getPass(),v.getPassword())){
-			n.setVoteNum(v.getVoteNum());
-			return true;
+		System.out.println(found+" " + (short)n.getVoteNum() + " " + (int)dvobj.getID());
+		String pass1 = (new String(n.getPass())).trim();
+		String pass2 = (new String(v.getPassword())).trim();
+		System.out.println("Pass1: '"+pass1+"'/nPass2:'"+pass2+"'");
+		if(!found){
+			return 4;
 		}
-		return false;
+		if(n.getVoteNum()!=-1){
+			return 2;
+		}
+		if(v.getVoteNum()>clist.length||v.getVoteNum()==0){
+			return 3;
+		}
+		if(!pass1.equals(pass2)){
+			return 1;
+		}
+		n.setVoteNum(v.getVoteNum());
+		return 0;
 	}
 	
 	private class DataObj implements Comparable {
@@ -187,6 +194,7 @@ public class Server {
 		
 		public int getID(){return id;}
 		public char[] getPass(){return pass;}
+		public char[] getName(){return name;}
 		public short getVoteNum(){return voteNum;}
 		
 		public void setVoteNum(short voteNum){this.voteNum = voteNum;}

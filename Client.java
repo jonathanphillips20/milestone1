@@ -20,7 +20,7 @@ public class Client {
 		try{this.socket = new DatagramSocket();}catch(SocketException e){e.printStackTrace();}
 		try{this.host = InetAddress.getByName("localhost");}catch(UnknownHostException e){e.printStackTrace();}
 		this.quit=false;
-		System.out.println(" " + port + socket + host);
+		System.out.println("Running on - " + host.getHostName() +":"+port);
 		this.main();
 	}
 	
@@ -63,12 +63,21 @@ public class Client {
 		byte[] buffer = new byte[80];
 		DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
 		try{socket.receive(reply);}catch(IOException e){e.printStackTrace();}
-		if( reply.getData()[0] == (byte) -1){
-			System.out.println("Vote already registered or incorrect user id/password combo\n");
-			return false;
+		if( reply.getData()[0] == (byte) 0){
+			System.out.println("vote Registered\n"); 
+			return true;
+		} else if(reply.getData()[0] == (byte) 1){
+			System.out.println("Error - Incorrect user id/password combo\n");
+		} else if(reply.getData()[0] == (byte) 2){
+			System.out.println("Error - Vote already registered\n");
+		} else if(reply.getData()[0] == (byte) 3) {
+			System.out.println("Error - Vote index out of bounds\n");
+		} else if(reply.getData()[0] == (byte) 4){
+			System.out.println("Error - User has not been registered\n");
+		} else {
+			System.out.println("Error - Unknown error occurred\n");
 		}
-		System.out.println("vote Registered\n");
-		return true;
+		return false;
 	}
 	
 	public void getCandidates(){
@@ -116,5 +125,8 @@ public class Client {
 		socket.close();
 	}
 	
-
+	public void main(int id, char[] password, char[] name, char[] district, short vote){
+		this.register(id,password,name,district);
+		this.vote(vote,id,password);
+	}
 }
