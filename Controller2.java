@@ -17,7 +17,8 @@ public class Controller2 implements ActionListener {
     {
        this.gui3 = gui3;
        this.cl = new Client();
-	   this.gui2.getLabel(3).setText(cl.getCandidate());
+	  
+	   
     }
 
     @Override
@@ -50,6 +51,9 @@ public class Controller2 implements ActionListener {
             gui3.dispose();
             gui2 = new GUI2();
             gui2.addController(this);
+			 String x = ":  " + cl.getCandidates();
+	         this.gui2.getLabel(4).setText(x);
+			 gui2.setVisible(true);
         }
         else if (action.equals("GO BACK1")) {
             gui.dispose();

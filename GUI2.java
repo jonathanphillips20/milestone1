@@ -19,7 +19,7 @@ public class GUI2 extends JFrame{
     {   
         super("VOTE");
         button = new JButton[2];
-        label = new JLabel[4];
+        label = new JLabel[5];
         Text = new JTextField[4];
 
         this.makeFrame();         // call makeFrame method
@@ -40,7 +40,7 @@ public class GUI2 extends JFrame{
     private void makePanel()
     {
         // panel is assigned a new JPanel with a BorderLayout
-        this.panel = new JPanel(new GridLayout(5,2));
+        this.panel = new JPanel(new GridLayout(6,2));
 
         label[0] = new JLabel("ID:");        this.panel.add(label[0]);
          Text[0] = new JTextField();         this.panel.add( Text[0]);
@@ -49,7 +49,7 @@ public class GUI2 extends JFrame{
         label[2] = new JLabel("Candidate:"); this.panel.add(label[2]);
          Text[2] = new JTextField();         this.panel.add( Text[2]);
 		label[3] = new JLabel("Current Canidates:");  this.panel.add(label[3]);
-         Text[3] = new JTextField();         this.panel.add( Text[3]);
+         label[4] = new JLabel("");  this.panel.add(label[4]);
         button[0] = new JButton("Vote");
         button[0].setActionCommand("Vote");
         this.panel.add(button[0]);

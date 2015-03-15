@@ -23,8 +23,8 @@ public class GUI extends JFrame
     {   
         super("Registrations For Voter");
         button = new JButton[2];
-        label = new JLabel[5];
-        Text = new JTextField[5];
+        label = new JLabel[4];
+        Text = new JTextField[4];
 
         this.makeFrame();         // call makeFrame method
         this.makePanel();         // call makePanel method  
@@ -41,7 +41,7 @@ public class GUI extends JFrame
     private void makePanel()
     {
         // panel is assigned a new JPanel with a BorderLayout
-        this.panel = new JPanel(new GridLayout(6,2));
+        this.panel = new JPanel(new GridLayout(5,2));
 
          label[0] = new JLabel("Username:");  this.panel.add(label[0]);
          Text[0] = new JTextField();         this.panel.add( Text[0]);
@@ -51,8 +51,7 @@ public class GUI extends JFrame
          Text[2] = new JTextField();         this.panel.add( Text[2]);
          label[3] = new JLabel("District");  this.panel.add(label[3]);
          Text[3] = new JTextField();         this.panel.add( Text[3]);
-		 label[4] = new JLabel("Current Canidates:");  this.panel.add(label[4]);
-         Text[4] = new JTextField();         this.panel.add( Text[4]);
+		
 
          button[0] =new JButton("Register");
          button[0].setActionCommand("Register Voter");
