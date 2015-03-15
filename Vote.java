@@ -1,4 +1,6 @@
 import java.util.Arrays;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class Vote {
 	short voteNum = -1;
@@ -13,6 +15,7 @@ public class Vote {
 	
 	public short getVoteNum(){return voteNum;}
 	public int getVoteID(){return loginID;}
+	public char[] getPassword(){return password;}
 	
 	public byte[] toByteArray(){
 		byte[] ret = new byte[7+password.length];
@@ -34,15 +37,26 @@ public class Vote {
 		}
 		
 		//return encoded Vote object.
+		/*test
+		byte[] temp2 = new byte[ret.length-1];
+		for(int i=0;i<temp2.length;i++){
+		    temp2[i]=ret[i+1];
+		} ret=temp2;
+		/**/
 		return ret;
 	}
 	
 	public static Vote toVoteObj(byte[] bytes){
-		short voteNum = (short) (bytes[1]<<8 | bytes[0]);
-		int loginID = (int) (bytes[3]<<8*3 | bytes[2]<<8*2 | bytes[5]<<8 | bytes[4]);
-		byte[] temp = new byte[bytes.length-7];
+	    ByteBuffer voteBuf = ByteBuffer.allocate(2);
+	    voteBuf.order(ByteOrder.BIG_ENDIAN); voteBuf.put(bytes[0]); voteBuf.put(bytes[1]);
+		short voteNum = voteBuf.getShort(0);
+		
+		ByteBuffer idBuf = ByteBuffer.allocate(4);
+		idBuf.order(ByteOrder.BIG_ENDIAN); idBuf.put(bytes[2]); idBuf.put(bytes[3]); idBuf.put(bytes[4]); idBuf.put(bytes[5]);
+		int loginID = idBuf.getInt(0);
+		byte[] temp = new byte[bytes.length-6];
 		for(int i=0;i<temp.length;i++){
-			temp[i] = bytes[i+7];
+			temp[i] = bytes[i+6];
 		}
 		char[] password = (new String(temp)).toCharArray();
 		return new Vote(voteNum,loginID,password);

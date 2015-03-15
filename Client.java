@@ -98,7 +98,7 @@ public class Client {
 		short vote;
 		Scanner kbreader = new Scanner(System.in);
 		System.out.print("Enter Id: ");				id = kbreader.nextInt();
-		System.out.print("Enter Password: ");		password = kbreader.next().toCharArray();
+		System.out.print("Enter Password: " );		password = kbreader.next().toCharArray();
 		System.out.print("Enter name: ");			name = kbreader.next().toCharArray();
 		System.out.print("Enter district: ");		district=kbreader.next().toCharArray();
 		this.register(id,password,name,district);
