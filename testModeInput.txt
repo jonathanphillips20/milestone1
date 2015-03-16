@@ -1,0 +1,41 @@
+%CODE-REQUIREDINFO
+%CODE specifies action and is as follows:
+%	0 -> Register & Vote
+%	1 -> Register
+%	2 -> Vote
+%REQUIREDINFO specifies all inputs required and is formatted as follows:
+%	code0 -> ID-PASS-NAME-DISTRICT-VOTENUM
+%	code1 -> ID-PASS-NAME-DISTRICT
+%	code2 -> ID-PASS-VOTENUM
+%
+%The order of each action is not fixed. 
+%IE. you can "vote" then "vote and register" then "register" then "register"
+%or any order you chose.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+0-50-hello-Jonathan-Ontario-1
+0-51-hello-Jonathan-Ontario-1
+0-52-hello-jonathan-Ontario-1
+0-53-hello-Jonathan-Ontario-1
+0-54-hello-Jonathan-Ontario-2
+0-55-hello-Jonathan-Ontario-2
+0-56-hello-Jonathan-Ontario-3
+0-57-hello-Jonathan-Ontario-4
+0-58-hello-Jonathan-Ontario-4
+0-59-hello-Jonathan-Ontario-4
+
+1-60-hello-Jonathan-Ontario
+1-61-hello-Jonathan-Ontario
+1-62-hello-Jonathan-Ontario
+1-63-hello-Jonathan-Ontario
+1-64-hello-Jonathan-Ontario
+1-65-hello-Jonathan-Ontario
+1-66-hello-Jonathan-Ontario
+1-67-hello-Jonathan-Ontario
+1-68-hello-Jonathan-Ontario
+1-69-hello-Jonathan-Ontario
+
+
+2-69-WRONG-1
+2-69-hello-1
+2-69-hello-2
+2-70-hello-1

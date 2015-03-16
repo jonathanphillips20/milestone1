@@ -40,7 +40,7 @@ public class Client {
 		this(serverInetAddress,serverPort,0);
 	}
 	
-		//localhost constructors
+		//localhost server constructors
 	public Client(int timeout){
 		this(null,5555,timeout);
     }
@@ -62,12 +62,21 @@ public class Client {
             try{
 				String cLine;
                 br = new BufferedReader(new FileReader(input));
-                while ((cLine = br.readLine()) != null&& !cLine.equals("")) {
-                    if(!cLine.startsWith("%")){
-                        String[] s= cLine.split("-");
-                        System.out.println("-------------------\n"+s[0]);
-                        try{
-							client.main(Integer.parseInt(s[0]),s[1].toCharArray(),s[2].toCharArray(),s[3].toCharArray(), Short.parseShort(s[4]));
+                while ((cLine = br.readLine()) != null) {
+                    if(!cLine.startsWith("%")&&!cLine.trim().equals("")){
+                        String[] s = cLine.split("-");
+                        System.out.println("-------------------\n\tINPUT:\""+cLine+"\"");
+						try{
+							if(s[0].equals("0")){
+								client.main(Integer.parseInt(s[1]),s[2].toCharArray(),s[3].toCharArray(),s[4].toCharArray(), Short.parseShort(s[5]));
+							} else if(s[0].equals("1")) {
+								client.register(Integer.parseInt(s[1]),s[2].toCharArray(),s[3].toCharArray(),s[4].toCharArray());
+							} else if(s[0].equals("2")) {
+								client.vote(Short.parseShort(s[3]),Integer.parseInt(s[1]),s[2].toCharArray());
+							} else {
+								System.out.println("Invalid input code on line: \"" + cLine + "\""); 
+								return;
+							}
 						} catch(NumberFormatException e){
 							System.out.println("Invalid input format on line: \"" + cLine + "\""); return;
 						}

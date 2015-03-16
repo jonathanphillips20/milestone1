@@ -14,33 +14,58 @@ import java.io.*;
 public class Server {
     private Thread[] t;
     private String candidates;	
-    private String outFile;
-    private String[] cList;
+	private String[] cList;
+	private Writer writer;
     private ConcurrentLinkedQueue<DatagramPacket> packetQueue;	//message queue
     private TreeSet<DataObj> database;
     private DatagramSocket socket;
     private boolean quit;
 
-    public Server(String candidates, String file, int port){
+	//START-Constructors
+    public Server(String candidates, String writeOutFile, int port){
         System.out.println("Starting Initialization");
         this.quit = false;
         this.candidates = candidates;
-        this.outFile = file;
-        this.cList = candidates.split("\n");
+		this.cList = candidates.split("\n");
+		this.database = new TreeSet<DataObj>();
+		
+		if(writeOutFile!=null){
+			try{ 
+				writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(writeOutFile), "UTF-8"));
+			} catch(IOException e){ e.printStackTrace();}
+		} else { writer = null;}
+		
         this.packetQueue = new ConcurrentLinkedQueue<DatagramPacket>();
-        try{this.socket = new DatagramSocket(port);} catch(SocketException e){	e.printStackTrace();}
-        this.database = new TreeSet<DataObj>();
+        try{this.socket = new DatagramSocket(port);} catch(SocketException e){System.out.println("Port "+port+" already in use. Exiting...");return;}
+		try{
+			System.out.println("Running on - " + InetAddress.getLocalHost().getHostAddress() +":"+ this.socket.getLocalPort());
+		}catch(UnknownHostException e){e.printStackTrace();}
+		
         this.main();
     }
 
-    public Server(String candidates, String file){
-        this(candidates, file, 5555);	//default port 5555
+    public Server(String candidates, String writeOutFile){
+        this(candidates, writeOutFile, 5555);	//default port 5555
     }
+	
+	public Server(String candidates){
+		this(candidates, null);
+	}
 
+	//END-Constructors
+	
+	//START-main's
     public static void main(String[] args){
-        if(args.length<2){System.out.println("Invalid arguments. use java Server <inputFile> <outputFile>"); return;}
+		String output = null;
+		if(args.length==0){
+			System.out.println("Invalid arguments. use java Server <inputFile> <outputFile(optional)>"); return;
+		} else if(args.length==1) {
+			System.out.println("No output file specified.");
+		} else if(args.length==2) {
+			output = args[1].replaceFirst(".txt","") + ".txt";
+			System.out.println("\""+ output + "\" will be written to when server exits");
+		}
         String input  = args[0].replaceFirst(".txt","") + ".txt";
-        String output = args[1].replaceFirst(".txt","") + ".txt";
         BufferedReader br = null;
         StringBuilder s = new StringBuilder();
         try{
@@ -91,11 +116,40 @@ public class Server {
             t[0] = t1;	t[1]=t2;	t[2]=t3;
             t1.start(); t2.start();	t3.start();
             t1.join();	t2.join();	t3.join();
-            countRequest(true);
+			
+			int[] count = new int[cList.length];
+			if(writer!=null){
+				Iterator<DataObj> itr = database.iterator();
+				DataObj n = null;
+				while(itr.hasNext()){
+					n=itr.next(); int voteNum = (int) n.getVoteNum();
+					if(voteNum>0){
+						writer.write(n.getID() + " voted for \"" + cList[voteNum-1]+"\"");
+						count[voteNum-1]+=1;
+					} else {
+						writer.write(n.getID() + " registered but has not voted");
+					} writer.write("\n");
+				}
+				for(int i=0;i<cList.length;i++){
+					writer.write("\""+cList[i] + "\" totaled " + count[i] + " votes\n");
+				}
+			} for(int i=0;i<cList.length;i++){
+				System.out.println("\t\""+cList[i] + "\" totaled " + count[i] + " votes");
+			}	
         } catch(InterruptedException e) {
             e.printStackTrace();
-        }
+		} catch(IOException e){
+			e.printStackTrace();
+        } finally{
+			try{
+				if(writer!=null){writer.close();}
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
     }
+
+	//END-main's
 
     public void endVote(){
         this.quit=true;
@@ -123,11 +177,10 @@ public class Server {
         if(firstByte== (byte) 0){
             System.out.println("List from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
             ret = candidates.getBytes();
-			Data
             //TODO: return dynamic candidates.
         } else if(firstByte == (byte) 1) {
             System.out.println("Count req from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
-            ret = countRequest(false);
+            ret = countRequest();
             //TODO:return dynamic count.
         } else if(firstByte == (byte) 2){
             System.out.println("Vote from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
@@ -151,31 +204,16 @@ public class Server {
         return true;
     }
 
-    private byte[] countRequest(boolean toFile){
+    private byte[] countRequest(){
         Iterator<DataObj> itr = database.iterator();
         DataObj n = null;
         int[] count = new int[cList.length];
-        for(int i=0;i<cList.length;i++){
-            count[i]=0;
-        }
 
-        Writer writer = null;
-        try{ 
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8"));
-
-            while(itr.hasNext()){
-                n=itr.next();
-                int voteNum = (int) n.getVoteNum();
-                if((writer!=null)&&toFile){
-                    if(voteNum!=-1){writer.write(n.getID() + " voted for \"" + cList[voteNum-1]+"\"");}
-                    else{writer.write(n.getID() + " registered but has not voted");}
-                    writer.write("\n");
-                }
-                if(voteNum>0){count[voteNum-1]+=1;}
-            }
-        } catch(IOException e){
-            e.printStackTrace();
-        } finally{try {writer.close();} catch (Exception e) {}}
+		while(itr.hasNext()){
+			n=itr.next();
+			int voteNum = (int) n.getVoteNum();
+			if(voteNum>0){count[voteNum-1]+=1;}
+		}
 
         byte[] ret = new byte[(cList.length-1)*(2+4)];
         for(int i=0;i<cList.length;i++){
