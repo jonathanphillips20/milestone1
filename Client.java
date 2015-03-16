@@ -52,12 +52,17 @@ public class Client {
 	
 	///START-Main's for command-line Execution
     public static void main(String args[]){
-        Client client = new Client(1000);
-        if(args.length<1){
+		if(args.length<3){
+			System.out.println("Incorrect use. use java <server> <port> <timeout> <inputFile(optional)>");return;
+        }
+		InetAddress address = null;
+		try{address = InetAddress.getByName(args[0]);}catch(UnknownHostException e){}
+		Client client = new Client(address,Integer.parseInt(args[1]),Integer.parseInt(args[2]));
+		if(args.length<4){
             System.out.println("No input files. Running single register/vote");
             client.main();
         } else {
-            String input = args[0].replaceFirst(".txt","") + ".txt";
+            String input = args[3].replaceFirst(".txt","") + ".txt";
             BufferedReader br = null;
             try{
 				String cLine;

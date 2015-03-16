@@ -21,7 +21,7 @@ public class Server {
     private DatagramSocket socket;
     private boolean quit;
 
-	//START-Constructors
+	///START-Constructors
     public Server(String candidates, String writeOutFile, int port){
         System.out.println("Starting Initialization");
         this.quit = false;
@@ -52,9 +52,9 @@ public class Server {
 		this(candidates, null);
 	}
 
-	//END-Constructors
+	///END-Constructors
 	
-	//START-main's
+	///START-main's
     public static void main(String[] args){
 		String output = null;
 		if(args.length==0){
@@ -94,7 +94,7 @@ public class Server {
                             } catch ( IOException e) {
                                 e.printStackTrace();
                             }
-                            String from = receive.getAddress().getHostName();
+                            String from = receive.getAddress().getHostAddress();
                             String me = null;
                             try{me =  InetAddress.getLocalHost().getHostAddress();}catch(IOException e){e.printStackTrace();}
                             if(!from.equals(me)){System.out.println("Packet from - "+from+":"+receive.getPort());}
@@ -149,7 +149,7 @@ public class Server {
 		}
     }
 
-	//END-main's
+	///END-main's
 
     public void endVote(){
         this.quit=true;
@@ -175,23 +175,23 @@ public class Server {
 
         byte[] ret;
         if(firstByte== (byte) 0){
-            System.out.println("List from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
+            System.out.println("List from - "+toProcess.getAddress().getHostAddress()+":"+toProcess.getPort());
             ret = candidates.getBytes();
             //TODO: return dynamic candidates.
         } else if(firstByte == (byte) 1) {
-            System.out.println("Count req from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
+            System.out.println("Count req from - "+toProcess.getAddress().getHostAddress()+":"+toProcess.getPort());
             ret = countRequest();
             //TODO:return dynamic count.
         } else if(firstByte == (byte) 2){
-            System.out.println("Vote from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
+            System.out.println("Vote from - "+toProcess.getAddress().getHostAddress()+":"+toProcess.getPort());
             ret = new byte[1];
             ret[0] = (byte) registerVote(data);
         } else if(firstByte == (byte) 3){
-            System.out.println("Entry from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
+            System.out.println("Entry from - "+toProcess.getAddress().getHostAddress()+":"+toProcess.getPort());
             ret = new byte[1];
             ret[0] = (byte) registerUser(data);
         } else {
-            System.out.println("UNKNOWN from - "+toProcess.getAddress().getHostName()+":"+toProcess.getPort());
+            System.out.println("UNKNOWN from - "+toProcess.getAddress().getHostAddress()+":"+toProcess.getPort());
             ret = new byte[1];
             ret[0] = (byte) -1;
         } System.out.print("----------\n");
