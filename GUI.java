@@ -1,5 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.awt.CardLayout;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -9,78 +10,143 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-public class GUI extends JFrame
-{
+public class GUI extends JFrame {
     private static final long serialVersionUID = 3244323400187410934L;
     private static final int [] DIMENSIONS = {300, 400}; // int array for dimensions
-
-    private JPanel panel;               // JPanel instance for the panel to be added to the frame
-    private JButton[] button;
-    private JLabel[] label;
-    private JTextField[] Text;
-
-    public GUI()
-    {   
-        super("Registrations For Voter");
-        button = new JButton[2];
-        label = new JLabel[4];
-        Text = new JTextField[4];
-
-        this.makeFrame();         // call makeFrame method
-        this.makePanel();         // call makePanel method  
-        // refresh the frame to display the contents
-        this.setVisible(true);   
+	
+	private static String REGISTERPANEL = "Register";
+	private static String VOTEPANEL 	= "Vote";
+	private static String STARTPANEL 	= "Main";
+	
+	private Controller controller;
+	private JPanel cards;
+	private JPanel[] jpanels 	= new JPanel[3];
+	private JLabel[][] label	= new JLabel[3][4];
+	private JTextField[][] text = new JTextField[3][4];
+	private JButton[][] button  = new JButton[3][3];
+	private JLabel labelx;
+	
+	public static void main(String[] args) {
+	    GUI g = new GUI();
+		Controller c = new Controller(g);
     }
+	
+	public GUI() {
+		super("Client GUI");
 
-    private void makeFrame()
-    {
-        this.setSize(DIMENSIONS[0], DIMENSIONS[1]);        // frame size is set to DIMENSIONS[0] and DIMENSIONS[1]
-        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);        // set the default close operation to be DISPOSE_ON_CLOSE
+		this.setSize(DIMENSIONS[0], DIMENSIONS[1]);			// frame size is set to DIMENSIONS[0] and DIMENSIONS[1]
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);		// set the default close operation to be DISPOSE_ON_CLOSE
+
+		cards = new JPanel(new CardLayout());
+		this.jpanels[0] = this.panel1(); cards.add(jpanels[0], REGISTERPANEL);
+		this.jpanels[1] = this.panel2(); cards.add(jpanels[1], VOTEPANEL);
+		this.jpanels[2] = this.panel3(); cards.add(jpanels[2], STARTPANEL);
+		CardLayout cl = (CardLayout)cards.getLayout();
+		cl.show(cards,STARTPANEL);
+
+		this.add(cards);
+		this.setVisible(true);								// refresh the frame to display the contents
     }
-
-    private void makePanel()
-    {
+	
+	private JPanel panel1() {
         // panel is assigned a new JPanel with a BorderLayout
-        this.panel = new JPanel(new GridLayout(5,2));
+        JPanel panel = new JPanel(new GridLayout(5,2));
 
-         label[0] = new JLabel("Username:");  this.panel.add(label[0]);
-         Text[0] = new JTextField();         this.panel.add( Text[0]);
-         label[1] = new JLabel("Password:");  this.panel.add(label[1]);
-         Text[1] = new JTextField();         this.panel.add( Text[1]);
-         label[2] = new JLabel("Name:");     this.panel.add(label[2]);
-         Text[2] = new JTextField();         this.panel.add( Text[2]);
-         label[3] = new JLabel("District");  this.panel.add(label[3]);
-         Text[3] = new JTextField();         this.panel.add( Text[3]);
+		label[0][0] = new JLabel("Username:");	panel.add(label[0][0]);
+		 text[0][0] = new JTextField();			panel.add( text[0][0]);
+		label[0][1] = new JLabel("Password:");	panel.add(label[0][1]);
+		 text[0][1] = new JTextField();			panel.add( text[0][1]);
+		label[0][2] = new JLabel("Name:");		panel.add(label[0][2]);
+		 text[0][2] = new JTextField();			panel.add( text[0][2]);
+		label[0][3] = new JLabel("District");	panel.add(label[0][3]);
+		 text[0][3] = new JTextField();			panel.add( text[0][3]);
 		
+		button[0][0] =new JButton("Register");
+		button[0][0].setActionCommand("Register Voter");
+		panel.add( button[0][0] );
 
-         button[0] =new JButton("Register");
-         button[0].setActionCommand("Register Voter");
-         this.panel.add( button[0] );
+		button[0][1] = new JButton("GO BACK");
+		button[0][1].setActionCommand("GO BACK");
+		panel.add(button[0][1]);
 
-         button[1] =new JButton("GO BACK");
-         button[1].setActionCommand("GO BACK1");
-         this.panel.add( button[1] );
+		return panel;
+    }
+	
+	private JPanel panel2() {
+        JPanel panel = new JPanel(new GridLayout(6,2));
 
-         this.add(this.panel); // adds panel to the frame
+        label[1][0] = new JLabel("ID:");       		 	panel.add(label[1][0]);
+         text[1][0] = new JTextField();        		 	panel.add( text[1][0]);
+        label[1][1] = new JLabel("Password:");  	 	panel.add(label[1][1]);
+         text[1][1] = new JTextField();        		 	panel.add( text[1][1]);
+        label[1][2] = new JLabel("Candidate:"); 		panel.add(label[1][2]);
+         text[1][2] = new JTextField();         		panel.add( text[1][2]);
+		label[1][3] = new JLabel("Current Canidates:"); panel.add(label[1][3]);
+        this.labelx = new JLabel("");  					panel.add(labelx);
+		
+        button[1][0] = new JButton("Vote");
+        button[1][0].setActionCommand("Vote");
+        panel.add(button[1][0]);
+
+        button[1][1] = new JButton("GO BACK");
+        button[1][1].setActionCommand("GO BACK");
+        panel.add( button[1][1] );
+
+        return panel; 
+    }
+	
+	private JPanel panel3() {
+        JPanel panel = new JPanel(new GridLayout(3,1));
+
+        button[2][0] = new JButton("Register As Voter");
+        button[2][0].setActionCommand("Register As Voter");
+        panel.add(button[2][0]);
+
+        button[2][1] = new JButton("Vote For Candidate");
+        button[2][1].setActionCommand("Vote For Candidate");
+        panel.add(button[2][1]);
+
+        button[2][2] = new JButton("EXIT");
+        button[2][2].setActionCommand("EXIT");
+        panel.add(button[2][2]);
+
+        return panel;
+    }
+	
+    public JLabel getLabel(int panel, int i) {
+        return this.label[panel][i];
     }
 
-    public void addController(Controller2 controller)
-    {
-        for(int i=0; i < button.length;i++)
-        {
-            this.button[i].addActionListener(controller);
+    public JTextField getText(int panel, int i) {
+        return this.text[panel][i];
+    }
+
+    public JButton getButton(int panel, int i) {
+        return button[panel][i];
+    }
+	
+	public void addController(Controller controller){
+        for(int i=0; i < 3; i++){
+			for(int k=0; k < 3; k++){
+				if(this.button[i][k]!=null){this.button[i][k].addActionListener(controller);}
+			}
         }
     }
-
-    public JLabel getLabel(int i) {
-        return label[i];
-    }
-
-    public JTextField getText(int i) {
-        return Text[i];
-    }
-
-    public JButton getButton(int i) {
-        return button[i];
-    }
+	
+	public void setVoters(String x){
+		labelx.setText(x);
+	}
+	
+	public void setLayout(int i){
+		CardLayout cl = (CardLayout)cards.getLayout();
+		if(i==0){
+			cl.show(cards,REGISTERPANEL);
+		} else if(i==1) {
+			cl.show(cards,VOTEPANEL);
+		} else if(i==2) {
+			cl.show(cards,STARTPANEL);
+		} else {
+			System.out.println("Invalid panel");
+		}
+	}
 }
