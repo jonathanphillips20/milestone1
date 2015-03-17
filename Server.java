@@ -233,9 +233,9 @@ public class Server {
         DataObj in = new DataObj(registration.getLoginID(),registration.getLoginPW(), registration.getName(),registration.getDistrict());
 
         if(database.add(in)){
-            return 0;
+            return 1;	//ID added
         } 
-        return -1;
+        return 0;		//ID already registered
     }
 
     private int registerVote(byte[] data){

@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.net.SocketTimeoutException;
+import java.util.InputMismatchException;
 
 import java.net.DatagramSocket;
 import java.net.DatagramPacket;
@@ -113,10 +114,10 @@ public class Client {
         short vote;
         Scanner kbreader = new Scanner(System.in);
 		System.out.println("Register:");
-        System.out.print("\tEnter Id: ");				  id = kbreader.nextInt();
-        System.out.print("\tEnter Password: " );	password = kbreader.next().toCharArray();
-        System.out.print("\tEnter name: ");				name = kbreader.next().toCharArray();
-        System.out.print("\tEnter district: ");		district = kbreader.next().toCharArray();
+        System.out.print("\tEnter Id: ");			    try{id = kbreader.nextInt();}catch(InputMismatchException e){System.out.println("Invalid ID. ID must be comprised of only numbers\nand must be in the range 0 - 2^31-1(inclusive)"); return;}
+        System.out.print("\tEnter Password: " );	  password = kbreader.next().toCharArray();
+        System.out.print("\tEnter name: ");				  name = kbreader.next().toCharArray();
+        System.out.print("\tEnter district: ");		  district = kbreader.next().toCharArray();
         this.register(id,password,name,district);
 
         String[] s = candidates.split("\n");
@@ -126,10 +127,10 @@ public class Client {
         }
 		
 		System.out.println("Vote:");
-        System.out.print("\tEnter id: ");			      id = kbreader.nextInt();
-        System.out.print("\tEnter Password: ");		password = kbreader.next().toCharArray();
-        System.out.print("\tEnter vote (number): ");	vote = kbreader.nextShort();
-        if(!this.vote(vote,id,password)){return;}
+        System.out.print("\tEnter id: ");		          try{id = kbreader.nextInt();}catch(InputMismatchException e){System.out.println("Invalid ID. ID must be comprised of only numbers\nand must be in the range 0 - 2^31-1(inclusive)"); return;}
+        System.out.print("\tEnter Password: ");		    password = kbreader.next().toCharArray();
+        System.out.print("\tEnter vote (number): ");	try{vote = kbreader.nextShort();}catch(InputMismatchException e){System.out.println("Invalid voteNum. Must be comprised of only numbers and must be in the range 1 - 2^15-1(inclusive)"); return;}
+        this.vote(vote,id,password);
 
         socket.close();
     }
@@ -140,11 +141,18 @@ public class Client {
 	}
 	///END-Main's for command-line Execution
 	
-    public boolean register(int id, char[] password, char[] name, char[] district){
+    public byte register(int id, char[] password, char[] name, char[] district){
+		/*Error codes returned by this function
+		-3	: Socket Timed out
+		-2	: Invalid password/name/district length (16 max)
+		-1	: Unknown Error
+		0	: ID already registered
+		1	: Successful register
+		*/
         //returns false if id is already registered or char arrays are longer then 16
         if(password.length>16||name.length>16||district.length>16){	//char[] restricted to 16 long
             System.out.println("Invalid input. Password, Name and District limited 16 chars");
-            return false;
+            return (byte)-2;
         }
         byte[] entryArray = (new Entry(id,password,name,district)).toByteArray();
         DatagramPacket request = new DatagramPacket(entryArray, entryArray.length, serverInetAddress, serverPort);
@@ -153,21 +161,34 @@ public class Client {
 
         byte[] buffer = new byte[80];
         DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-        try{socket.receive(reply);}catch(SocketTimeoutException e){System.out.println("Socket Timed out"); return false;}
+        try{socket.receive(reply);}catch(SocketTimeoutException e){System.out.println("Socket Timed out"); return (byte)-3;}
         catch(IOException e){e.printStackTrace();}
 
-        if(reply.getData()[0]==(byte)-1){
-            System.out.println("ID already registered\n");
-            return false;
-        }
-        System.out.println("Register successful\n");
-        return true;
+		byte r = reply.getData()[0];
+        if(r == (byte)1){
+			System.out.println("Register successful\n");
+        } else if(r == (byte)0){
+            System.out.println("Error - ID already registered\n");
+		} else {
+			System.out.println("Error - Unknown error occurred"); r = (byte) -1;
+		}
+		return r;
     }
 
-    public boolean vote(short voteNum, int id, char[] password){
+    public byte vote(short voteNum, int id, char[] password){
+		/* Error codes returned by this function (as byte)
+		-3	: Socket Timed out
+		-2	: Invalid password length (16 max)
+		-1	: Unknown Error
+		0	: Successful
+		1	: Incorrect ID/Pass combo
+		2	: Vote Already Registered
+		3	: Vote Index out of bounds
+		4	: User not registered
+		*/
         if(password.length>16){	//char[] restricted to 16 long
             System.out.println("Invalid password. Password restricted to 16 chars");
-            return false;
+            return (byte) -2;
         }
         byte[] voteArray = (new Vote(voteNum,id,password)).toByteArray(); 
         DatagramPacket request = new DatagramPacket(voteArray, voteArray.length, serverInetAddress, serverPort);
@@ -176,23 +197,24 @@ public class Client {
 
         byte[] buffer = new byte[80];
         DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-        try{socket.receive(reply);}catch(SocketTimeoutException e){System.out.println("Socket Timed out"); return false;}
+        try{socket.receive(reply);}catch(SocketTimeoutException e){System.out.println("Socket Timed out"); return (byte)-3;}
         catch(IOException e){e.printStackTrace();}
-        if( reply.getData()[0] == (byte) 0){
+		
+		byte r = reply.getData()[0];
+        if( r == (byte) 0){
             System.out.println("vote Registered\n"); 
-            return true;
-        } else if(reply.getData()[0] == (byte) 1){
+        } else if(r == (byte) 1){
             System.out.println("Error - Incorrect user id/password combo\n");
-        } else if(reply.getData()[0] == (byte) 2){
+        } else if(r == (byte) 2){
             System.out.println("Error - Vote already registered\n");
-        } else if(reply.getData()[0] == (byte) 3) {
+        } else if(r == (byte) 3) {
             System.out.println("Error - Vote index out of bounds\n");
-        } else if(reply.getData()[0] == (byte) 4){
+        } else if(r == (byte) 4){
             System.out.println("Error - User has not been registered\n");
         } else {
-            System.out.println("Error - Unknown error occurred\n");
+            System.out.println("Error - Unknown error occurred\n"); r = (byte) -1;
         }
-        return false;
+        return r;
     }
 	
 	public String getCandidates(){
