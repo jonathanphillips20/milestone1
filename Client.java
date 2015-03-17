@@ -54,7 +54,7 @@ public class Client {
 	///START-Main's for command-line Execution
     public static void main(String args[]){
 		if(args.length<3){
-			System.out.println("Incorrect use. use java <server> <port> <timeout> <inputFile(optional)>");return;
+			System.out.println("Incorrect use. use java Client <server> <port> <timeout>");return;
         }
 		InetAddress address = null;
 		try{address = InetAddress.getByName(args[0]);}catch(UnknownHostException e){}

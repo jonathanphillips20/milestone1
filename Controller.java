@@ -4,14 +4,16 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 
+import java.net.InetAddress;
+
 public class Controller implements ActionListener {
     private Dialog messagebox;
     private Client cl;
 	private GUI gui;
 
-    public Controller(GUI gui){
+    public Controller(GUI gui,InetAddress address, int port, int timeout){
        this.gui = gui;
-       this.cl = new Client(); 
+       this.cl = new Client(address,port,timeout); 
 	   String x = "" + cl.getCandidates();
 	   this.gui.setVoters(x);
 	   this.gui.addController(this);

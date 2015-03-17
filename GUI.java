@@ -10,6 +10,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class GUI extends JFrame {
     private static final long serialVersionUID = 3244323400187410934L;
     private static final int [] DIMENSIONS = {300, 400}; // int array for dimensions
@@ -27,8 +30,16 @@ public class GUI extends JFrame {
 	private JLabel labelx;
 	
 	public static void main(String[] args) {
+		if(args.length<3){
+			System.out.println("Incorrect use. use java Client <server> <port> <timeout> <inputFile(optional)>");return;
+        }
+		InetAddress address = null;
+		try{address = InetAddress.getByName(args[0]);}catch(UnknownHostException e){}
+		
+		
+		
 	    GUI g = new GUI();
-		Controller c = new Controller(g);
+		Controller c = new Controller(g,address,Integer.parseInt(args[1]),Integer.parseInt(args[2]));
     }
 	
 	public GUI() {
