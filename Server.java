@@ -72,7 +72,9 @@ public class Server {
             String cLine;
             br = new BufferedReader(new FileReader(input));
             while ((cLine = br.readLine()) != null) {
-                s.append(cLine+"\n");
+				if(!cLine.trim().equals("")){
+					s.append(cLine+"\n");
+				}
             }
         } catch(IOException e){
             e.printStackTrace();
@@ -252,11 +254,12 @@ public class Server {
             }
         }
 
-        String pass1 = (new String(n.getPass())).trim();
-        String pass2 = (new String(v.getPassword())).trim();
+        
         if(!found){					//registered?
             return 4;
         }
+        String pass1 = (new String(n.getPass())).trim();
+        String pass2 = (new String(v.getPassword())).trim();
         if(!pass1.equals(pass2)){	//password correct?
             return 1;
         }

@@ -1,14 +1,8 @@
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.CardLayout;
-import java.util.Observable;
-import java.util.Observer;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -23,11 +17,11 @@ public class GUI extends JFrame {
 	
 	private Controller controller;
 	private JPanel cards;
-	private JPanel[] jpanels 	= new JPanel[3];
+	private JPanel[] jpanels 	= new JPanel[4];
 	private JLabel[][] label	= new JLabel[3][4];
 	private JTextField[][] text = new JTextField[3][4];
 	private JButton[][] button  = new JButton[3][3];
-	private JLabel labelx;
+	private JTextArea textArea;
 	
 	public static void main(String[] args) {
 		if(args.length<3){
@@ -35,8 +29,6 @@ public class GUI extends JFrame {
         }
 		InetAddress address = null;
 		try{address = InetAddress.getByName(args[0]);}catch(UnknownHostException e){}
-		
-		
 		
 	    GUI g = new GUI();
 		Controller c = new Controller(g,address,Integer.parseInt(args[1]),Integer.parseInt(args[2]));
@@ -84,16 +76,17 @@ public class GUI extends JFrame {
     }
 	
 	private JPanel panel2() {
-        JPanel panel = new JPanel(new GridLayout(6,2));
+        JPanel panel = new JPanel(new GridLayout(5,2));
 
-        label[1][0] = new JLabel("ID:");       		 	panel.add(label[1][0]);
-         text[1][0] = new JTextField();        		 	panel.add( text[1][0]);
-        label[1][1] = new JLabel("Password:");  	 	panel.add(label[1][1]);
-         text[1][1] = new JTextField();        		 	panel.add( text[1][1]);
-        label[1][2] = new JLabel("Candidate:"); 		panel.add(label[1][2]);
-         text[1][2] = new JTextField();         		panel.add( text[1][2]);
-		label[1][3] = new JLabel("Current Canidates:"); panel.add(label[1][3]);
-        this.labelx = new JLabel("");  					panel.add(labelx);
+        label[1][0] = new JLabel("ID:");       		 	 panel.add(label[1][0]);
+         text[1][0] = new JTextField();        		 	 panel.add( text[1][0]);
+        label[1][1] = new JLabel("Password:");  	 	 panel.add(label[1][1]);
+         text[1][1] = new JTextField();        		 	 panel.add( text[1][1]);
+        label[1][2] = new JLabel("Candidate:"); 		 panel.add(label[1][2]);
+         text[1][2] = new JTextField();         		 panel.add( text[1][2]);
+		label[1][3] = new JLabel("Current Candidates:"); panel.add(label[1][3]);
+        this.textArea= new JTextArea("");  				
+		JScrollPane sp = new JScrollPane(textArea);		 panel.add(sp);
 		
         button[1][0] = new JButton("Vote");
         button[1][0].setActionCommand("Vote");
@@ -145,7 +138,7 @@ public class GUI extends JFrame {
     }
 	
 	public void setVoters(String x){
-		labelx.setText(x);
+		textArea.setText(x);
 	}
 	
 	public void setLayout(int i){
