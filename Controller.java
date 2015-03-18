@@ -13,7 +13,7 @@ import javax.swing.JTextField;
 import javax.swing.JFrame;
 
 public class Controller implements ActionListener, KeyListener {
-	DialogBox messagebox;
+	private DialogBox messagebox;
 	private Client cl;
 	private GUI gui;
 	

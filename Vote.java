@@ -2,9 +2,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class Vote {
-	short voteNum = -1;
-	int loginID;
-	char[] password;
+	private short voteNum = -1;
+	private int loginID;
+	private char[] password;
 
 	public Vote(short voteNum, int loginID, char[] password){
 		this.voteNum = voteNum;
