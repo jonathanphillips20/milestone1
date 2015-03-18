@@ -14,7 +14,7 @@ public class GUI extends JFrame {
 	private JPanel cards;
 	private JPanel[] jpanels 	= new JPanel[4];
 	private JLabel[][] label	= new JLabel[3][4];
-	private JTextField[][] text = new JTextField[3][4];
+	private JTextField[][] text = new JTextField[2][4];
 	private JButton[][] button  = new JButton[3][3];
 	private JTextArea textArea;
 
@@ -127,7 +127,12 @@ public class GUI extends JFrame {
 	public void addController(Controller controller){
 		for(int i=0; i < 3; i++){
 			for(int k=0; k < 3; k++){
-				if(this.button[i][k]!=null){this.button[i][k].addActionListener(controller);}
+				if(this.button[i][k]!=null){this.button[i][k].addActionListener(controller); this.button[i][k].addKeyListener(controller);}
+			}
+		}
+		for(int i=0; i<2 ;i++){
+			for(int k=0;k<4;k++){
+				if(this.text[i][k]!=null){this.text[i][k].addKeyListener(controller);}
 			}
 		}
 	}

@@ -1,8 +1,16 @@
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.ActionEvent;
 import java.net.InetAddress;
 
-public class Controller implements ActionListener {
+import javax.swing.AbstractButton;
+import javax.swing.JButton;
+import javax.swing.JTextField;
+
+public class Controller implements ActionListener, KeyListener {
 	private DialogBox messagebox;
 	private Client cl;
 	private GUI gui;
@@ -103,4 +111,28 @@ public class Controller implements ActionListener {
 			gui.setLayout(3);
 		}
 	}
+    @Override
+    
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode()==KeyEvent.VK_ENTER){
+        	Component focus = gui.getFocusOwner();
+        	if(focus instanceof JTextField){
+        		if(gui.getButton(0, 0).isVisible()){
+        			this.actionPerformed(new ActionEvent(this,1,"Register Voter"));
+        		} else if(gui.getButton(1, 0).isVisible()){
+        			this.actionPerformed(new ActionEvent(this,1,"Vote"));
+        		}
+        	}else if(focus instanceof JButton){
+        		this.actionPerformed(new ActionEvent(this,1,((JButton) focus).getActionCommand()));
+        	}
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent arg0) {
+    }
+
+    @Override
+    public void keyTyped(KeyEvent arg0) {
+    }
 }
