@@ -4,16 +4,21 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.ActionEvent;
+import java.awt.Point;
 import java.net.InetAddress;
 
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import javax.swing.JFrame;
 
 public class Controller implements ActionListener, KeyListener {
-	private DialogBox messagebox;
+	DialogBox messagebox;
 	private Client cl;
 	private GUI gui;
+	
+	private static String REGISTERPANEL = "Register";
+	private static String VOTEPANEL 	= "Vote";
 
 	public Controller(GUI gui, InetAddress address, int port, int timeout) {
 		this.gui = gui;
@@ -29,7 +34,10 @@ public class Controller implements ActionListener, KeyListener {
 	}
 
 	public void addDialogBox(String s) {
-		this.messagebox = new DialogBox(s);
+		if(messagebox!=null){messagebox.dispose();}
+		Point origin = gui.getLocation();
+		//double x = ; if(x<0){x==0}
+		messagebox = new DialogBox(s,new Point((new Double(origin.getX()+gui.getWidth()/2)).intValue(),(new Double(origin.getY()+gui.getHeight())).intValue()));
 		messagebox.addController(this);
 	}
 
@@ -60,7 +68,7 @@ public class Controller implements ActionListener, KeyListener {
 			} else if (r == (byte) 0) {
 				this.addDialogBox("ID already registered");
 			} else if (r == (byte) 1) {
-				this.addDialogBox("Successful register");
+				this.addDialogBox("Register Successful");
 			} else {
 				this.addDialogBox("Unknown Error");
 			}
@@ -75,7 +83,6 @@ public class Controller implements ActionListener, KeyListener {
 			} catch (NumberFormatException e) {
 				r = (byte) -4;
 			}
-
 			if (r == (byte) -4) {
 				this.addDialogBox("Invalid input: ID must be comprised of solely numbers and in the and of 0 - (2^31)-1");
 			} else if (r == (byte) -3) {
@@ -83,7 +90,7 @@ public class Controller implements ActionListener, KeyListener {
 			} else if (r == (byte) -2) {
 				this.addDialogBox("Invalid password length (16 max)");
 			} else if (r == (byte) 0) {
-				this.addDialogBox("Successful");
+				this.addDialogBox("Vote Successful");
 			} else if (r == (byte) 1) {
 				this.addDialogBox("Incorrect ID/Pass combo");
 			} else if (r == (byte) 2) {
@@ -105,21 +112,19 @@ public class Controller implements ActionListener, KeyListener {
 			gui.dispose();
 		} else if (action.equals("OK")) {
 			messagebox.dispose();
-		}
-
-		else if (action.equals("View Results")) {
+		} else if (action.equals("View Results")) {
 			gui.setLayout(3);
 		}
 	}
+	
     @Override
-    
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode()==KeyEvent.VK_ENTER){
         	Component focus = gui.getFocusOwner();
         	if(focus instanceof JTextField){
-        		if(gui.getButton(0, 0).isVisible()){
+        		if(gui.getCurrPanel().equals(REGISTERPANEL)){
         			this.actionPerformed(new ActionEvent(this,1,"Register Voter"));
-        		} else if(gui.getButton(1, 0).isVisible()){
+        		} else if(gui.getCurrPanel().equals(VOTEPANEL)){
         			this.actionPerformed(new ActionEvent(this,1,"Vote"));
         		}
         	}else if(focus instanceof JButton){

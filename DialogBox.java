@@ -1,4 +1,5 @@
 import java.awt.GridLayout;
+import java.awt.Point;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -13,20 +14,25 @@ public class DialogBox extends JFrame{
 	private JButton button;
 	private JLabel label;
 
-	public DialogBox(String Message) {	
+	public DialogBox(String Message,Point origin) {	
 		super("MessageBox");
 		this.Message = "      " + Message;
 
-		this.makeFrame();         // call makeFrame method
+		this.setSize(DIMENSIONS[0], DIMENSIONS[1]);       // frame size is set to DIMENSIONS[0] and DIMENSIONS[1]
+		if(origin!=null){
+			int x = (new Double(origin.getX()-250)).intValue(); if(x<0){x=0;}
+			int y = (new Double(origin.getY()-150)).intValue(); if(y<0){y=0;}
+			this.setLocation(new Point(x,y));
+		}
+		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);        // set the default close operation to be DISPOSE_ON_CLOSE
 		this.makePanel();         // call makePanel method	
 		this.getRootPane().setDefaultButton(button);
 
 		this.setVisible(true);    // refresh the frame to display the contents
 	}
-
-	private void makeFrame() {	
-		this.setSize(DIMENSIONS[0], DIMENSIONS[1]);        // frame size is set to DIMENSIONS[0] and DIMENSIONS[1]
-		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);        // set the default close operation to be DISPOSE_ON_CLOSE
+	
+	public DialogBox(String Message){
+		this(Message,null);
 	}
 
 	private void makePanel() {

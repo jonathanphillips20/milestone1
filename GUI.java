@@ -17,6 +17,7 @@ public class GUI extends JFrame {
 	private JTextField[][] text = new JTextField[2][4];
 	private JButton[][] button  = new JButton[3][3];
 	private JTextArea textArea;
+	private String currPanel;
 
 	public static void main(String[] args) {
 		if(args.length<3){
@@ -40,6 +41,7 @@ public class GUI extends JFrame {
 		this.jpanels[2] = this.panel3(); cards.add(jpanels[2], STARTPANEL);
 		CardLayout cl = (CardLayout)cards.getLayout();
 		cl.show(cards,STARTPANEL);
+		currPanel = STARTPANEL;
 
 		this.add(cards);
 		this.setVisible(true);								// refresh the frame to display the contents
@@ -145,12 +147,19 @@ public class GUI extends JFrame {
 		CardLayout cl = (CardLayout)cards.getLayout();
 		if(i==0){
 			cl.show(cards,REGISTERPANEL);
+			currPanel = REGISTERPANEL;
 		} else if(i==1) {
 			cl.show(cards,VOTEPANEL);
+			currPanel = VOTEPANEL;
 		} else if(i==2) {
 			cl.show(cards,STARTPANEL);
+			currPanel = STARTPANEL;
 		} else {
 			System.out.println("Invalid panel");
 		}
+	}
+	
+	public String getCurrPanel(){
+		return currPanel;
 	}
 }
