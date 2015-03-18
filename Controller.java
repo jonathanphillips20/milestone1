@@ -14,8 +14,12 @@ public class Controller implements ActionListener {
 	public Controller(GUI gui,InetAddress address, int port, int timeout){
 		this.gui = gui;
 		this.cl = new Client(address,port,timeout); 
-
 		String x = "" + cl.getCandidates();
+		if(x.trim().equals("null")){
+			this.addDialogBox("Server is not online. Please try again later.");
+			this.gui.dispose();
+			return;
+		}
 		this.gui.setVoters(x.trim());
 		this.gui.addController(this);
 	}
@@ -36,16 +40,13 @@ public class Controller implements ActionListener {
 			String dist = gui.getText(0,3).getText();
 			byte r;
 			try{
-			r = cl.register(Integer.parseInt(username), 
-					password.toCharArray(), 
-					name.toCharArray(), 
-					dist.toCharArray());
+			r = cl.register(Integer.parseInt(username), password.toCharArray(), name.toCharArray(), dist.toCharArray());
 			} catch(NumberFormatException e){
 				r=(byte)-4;
 			}
 			
 			if(r==(byte)-4){
-				this.addDialogBox("ID must be comprised of solely numbers and in the and of 0 - (2^31)-1");
+				this.addDialogBox("Invalid input: ID must be comprised of solely numbers and in the and of 0 - (2^31)-1");
 			} else if(r==(byte)-3){
 				this.addDialogBox("Socket Timed out");
 			} else if(r==(byte)-2) {
@@ -54,28 +55,22 @@ public class Controller implements ActionListener {
 				this.addDialogBox("ID already registered");
 			} else if(r==(byte)1) {
 				this.addDialogBox("Successful register");
-			}
-			else {
+			} else {
 				this.addDialogBox("Unknown Error");
 			}
-
-
 		} else if(action.equals("Vote")) {
 			String id = gui.getText(1,0).getText();
 			String password  = gui.getText(1,1).getText();
 			String candidate = gui.getText(1,2).getText();
 			byte r;
 			try{
-				r = cl.vote(Short.parseShort(candidate), 
-					Integer.parseInt(id), 
-					password.toCharArray());
-			
+				r = cl.vote(Short.parseShort(candidate), Integer.parseInt(id), password.toCharArray());
 			} catch(NumberFormatException e){
 				r=(byte)-4;
 			}
 			
 			if(r==(byte)-4){
-				this.addDialogBox("ID must be comprised of solely numbers and in the and of 0 - (2^31)-1");
+				this.addDialogBox("Invalid input: ID must be comprised of solely numbers and in the and of 0 - (2^31)-1");
 			} else if(r==(byte)-3){
 				this.addDialogBox("Socket Timed out");
 			} else if(r==(byte)-2) {
@@ -93,7 +88,6 @@ public class Controller implements ActionListener {
 			} else {
 				this.addDialogBox("Unknown Error");
 			}
-
 		} else if(action.equals("Register As Voter")) {
 			gui.setLayout(0);
 		} else if(action.equals("Vote For Candidate")) {

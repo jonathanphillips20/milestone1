@@ -85,7 +85,8 @@ public class GUI extends JFrame {
         label[1][2] = new JLabel("Candidate:"); 		 panel.add(label[1][2]);
          text[1][2] = new JTextField();         		 panel.add( text[1][2]);
 		label[1][3] = new JLabel("Current Candidates:"); panel.add(label[1][3]);
-        this.textArea= new JTextArea("");  				
+        this.textArea= new JTextArea("");  		
+		this.textArea.setEditable(false);
 		JScrollPane sp = new JScrollPane(textArea);		 panel.add(sp);
 		
         button[1][0] = new JButton("Vote");
