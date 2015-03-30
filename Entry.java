@@ -62,27 +62,27 @@ public class Entry {
 	}
 
 	public static Entry toEntryObj(byte[] bytes){
+		//assumes 1st byte is not really data.
 		ByteBuffer idBuf = ByteBuffer.allocate(4);
-		idBuf.order(ByteOrder.BIG_ENDIAN); idBuf.put(bytes[0]); idBuf.put(bytes[1]); idBuf.put(bytes[2]); idBuf.put(bytes[3]);
+		idBuf.order(ByteOrder.BIG_ENDIAN); idBuf.put(bytes[1]); idBuf.put(bytes[2]); idBuf.put(bytes[3]); idBuf.put(bytes[4]);
 		int loginID = idBuf.getInt(0);
 
 		byte[] temp = new byte[16];
 		for(int i=0;i<temp.length;i++){
-			temp[i] = bytes[i+4];
+			temp[i] = bytes[i+5];
 		} char[] password = (new String(temp).replaceAll("\0","")).toCharArray();
 
 		byte[] temp2 = new byte[16];
 		for(int i=0;i<temp2.length;i++){
-			temp2[i] = bytes[i+19];
+			temp2[i] = bytes[i+20];
 		} char[] name = (new String(temp2).replaceAll("\0","")).toCharArray();
 
 		byte[] temp3 = new byte[16];
 		for(int i=0;i<temp3.length;i++){
-			temp3[i] = bytes[i+34];
+			temp3[i] = bytes[i+35];
 		} char[] dist = (new String(temp3).replaceAll("\0","")).toCharArray();
 
 		return new Entry(loginID,password,name,dist);
-
 	}
 }
 

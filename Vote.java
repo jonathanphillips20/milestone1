@@ -48,16 +48,17 @@ public class Vote {
 	}
 
 	public static Vote toVoteObj(byte[] bytes){
+		//assume data 0 is not data
 		ByteBuffer voteBuf = ByteBuffer.allocate(2);
-		voteBuf.order(ByteOrder.BIG_ENDIAN); voteBuf.put(bytes[0]); voteBuf.put(bytes[1]);
+		voteBuf.order(ByteOrder.BIG_ENDIAN); voteBuf.put(bytes[1]); voteBuf.put(bytes[2]);
 		short voteNum = voteBuf.getShort(0);
 
 		ByteBuffer idBuf = ByteBuffer.allocate(4);
-		idBuf.order(ByteOrder.BIG_ENDIAN); idBuf.put(bytes[2]); idBuf.put(bytes[3]); idBuf.put(bytes[4]); idBuf.put(bytes[5]);
+		idBuf.order(ByteOrder.BIG_ENDIAN); idBuf.put(bytes[3]); idBuf.put(bytes[4]); idBuf.put(bytes[5]); idBuf.put(bytes[6]);
 		int loginID = idBuf.getInt(0);
 		byte[] temp = new byte[bytes.length-6];
 		for(int i=0;i<temp.length;i++){
-			temp[i] = bytes[i+6];
+			temp[i] = bytes[i+7];
 		}
 		char[] password = (new String(temp)).toCharArray();
 		return new Vote(voteNum,loginID,password);
