@@ -206,16 +206,14 @@ public class Server {
 			if(voteNum>0){count[voteNum-1]+=1;}
 		}
 
-		byte[] ret = new byte[(cList.length-1)*(2+4)];
+		byte[] ret = new byte[(cList.length)*(2+4)];
 		for(int i=0;i<cList.length;i++){
-			System.out.println("\""+cList[i] + "\" totaled " + count[i] + " votes");
-			ret[i+1] = (byte) ((short)i>>8);
-			ret[i+2] = (byte) ((short)i);
+			ret[6*i]   = (byte) ((short)i>>8);
+			ret[6*i+1] = (byte) ((short)i);
 			for(int j=0;j<4;j++){
-				ret[i+2+j] = (byte) (count[i]>>(j*8));
+				ret[6*i+5-j] = (byte) (count[i]>>(j*8));
 			}
 		}
-
 		return ret;
 	}
 
