@@ -1,11 +1,7 @@
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.TreeSet;
 import java.util.Iterator;
-import java.net.DatagramSocket;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.net.SocketException;
+import java.net.*;
 import java.io.*;
 
 public class Server {
@@ -34,6 +30,7 @@ public class Server {
 
 		this.packetQueue = new ConcurrentLinkedQueue<DatagramPacket>();
 		try{this.socket = new DatagramSocket(port);} catch(SocketException e){System.out.println("Port "+port+" already in use. Exiting...");return;}
+		try{this.socket.setSoTimeout(250);} catch(SocketException e){e.printStackTrace();}
 		try{
 			System.out.println("Running on - " + InetAddress.getLocalHost().getHostAddress() +":"+ this.socket.getLocalPort());
 		}catch(UnknownHostException e){e.printStackTrace();}
@@ -82,7 +79,8 @@ public class Server {
 	}
 
 	private void main(){
-		t=new Thread[3];
+		t=new Thread[2];
+		final BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 		Thread t1 = new Thread(new Runnable(){
 			public void run(){
 				while(!quit){
@@ -90,14 +88,17 @@ public class Server {
 					DatagramPacket receive = new DatagramPacket(buf,buf.length);
 					try{
 						socket.receive(receive);
+						String from = receive.getAddress().getHostAddress();
+						String me =  InetAddress.getLocalHost().getHostAddress();
+						System.out.println("Packet from - "+from+":"+receive.getPort());
+						packetQueue.add(receive);
+					} catch (SocketTimeoutException e){
+						//do nothing (quit if quit=true)
 					} catch ( IOException e) {
 						e.printStackTrace();
+					} finally {
+						try {if(stdin.ready()) {quit=true;}} catch (IOException e) {e.printStackTrace();}
 					}
-					String from = receive.getAddress().getHostAddress();
-					String me = null;
-					try{me =  InetAddress.getLocalHost().getHostAddress();}catch(IOException e){e.printStackTrace();}
-					if(!from.equals(me)){System.out.println("Packet from - "+from+":"+receive.getPort());}
-					packetQueue.add(receive);
 				}
 			}
 		});
@@ -108,13 +109,12 @@ public class Server {
 				}
 			}
 		});
-		Thread t3 = new Thread(new MyRunnable(this));
 
 		try{
 			System.out.println("Starting Server...");
-			t[0] = t1;	t[1]=t2;	t[2]=t3;
-			t1.start(); t2.start();	t3.start();
-			t1.join();	t2.join();	t3.join();
+			t[0] = t1;	t[1]=t2;
+			t1.start(); t2.start();
+			t1.join();	t2.join();
 
 			int[] count = new int[cList.length];
 			if(writer!=null){
@@ -152,14 +152,6 @@ public class Server {
 
 	public void endVote(){
 		this.quit=true;
-		byte[] garbage = new byte[1]; 
-		garbage[0] = (byte) -5;
-		try{
-			DatagramPacket p = new DatagramPacket(garbage,garbage.length,InetAddress.getLocalHost(), 5555);
-			socket.send(p);
-		}catch(IOException e){
-			e.printStackTrace();
-		}
 	}
 
 	private boolean processPacket(){
@@ -324,21 +316,5 @@ public class Server {
 		public short getVoteNum(){return voteNum;}
 
 		public void setVoteNum(short voteNum){this.voteNum = voteNum;}
-	}
-
-	private class MyRunnable implements Runnable{
-		Server s;
-
-		public MyRunnable(Server s){
-			this.s = s;
-		}
-
-		public void run(){
-			try{
-				System.in.read();
-			} catch(IOException e){
-				e.printStackTrace();
-			} finally{s.endVote();}
-		}
 	}
 }
