@@ -3,21 +3,35 @@ import java.nio.ByteOrder;
 
 public class Entry {
 	private int loginID;
-	private char[] LoginPW;
+	private char[] loginPW;
 	private char[] name;
 	private char[] district;
 
 	public Entry(int id, char[] pw, char[] name,char[] dist){
 		this.loginID = id;
-		this.LoginPW = pw;
+		this.loginPW = pw;
 		this.name = name;
 		this.district = dist;
-
+		if(loginPW.length>16){
+			char[] t = new char[16];
+			System.arraycopy(loginPW, 0, t, 0, 16);
+			this.loginPW = t;
+		}
+		if(name.length>16){
+			char[] t = new char[16];
+			System.arraycopy(name, 0, t, 0, 16);
+			this.name = t;
+		}
+		if(district.length>16){
+			char[] t = new char[16];
+			System.arraycopy(district, 0, t, 0, 16);
+			this.district = t;
+		}
 	}
 
 	public int getLoginID() {return loginID;}
 
-	public char[] getLoginPW() {return LoginPW;}
+	public char[] getLoginPW() {return loginPW;}
 
 	public char[] getName() {return name;}
 
@@ -30,7 +44,7 @@ public class Entry {
 			ret[4-i] = (byte) (loginID>>(i*8));
 		}
 
-		byte[] tempPW = (new String(this.LoginPW)).getBytes();
+		byte[] tempPW = (new String(this.loginPW)).getBytes();
 		for(int i=0;i<tempPW.length;i++){
 			ret[5+i]=tempPW[i];
 		} for(int i=tempPW.length;i<16;i++){

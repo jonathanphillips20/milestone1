@@ -51,15 +51,15 @@ public class Server {
 	///START-main's
 	public static void main(String[] args){
 		String output = null;
-		if(args.length==0){
-			System.out.println("Invalid arguments. use java Server <inputFile> <outputFile(optional)>"); return;
-		} else if(args.length==1) {
+		if(args.length==2) {
 			System.out.println("No output file specified.");
-		} else if(args.length==2) {
-			output = args[1].replaceFirst(".txt","") + ".txt";
+		} else if(args.length==3) {
+			output = args[2].replaceFirst(".txt","") + ".txt";
 			System.out.println("\""+ output + "\" will be written to when server exits");
+		} else {
+			System.out.println("Invalid arguments. use java Server <port> <candidates> <outputFile(optional)>"); return;
 		}
-		String input  = args[0].replaceFirst(".txt","") + ".txt";
+		String input  = args[1].replaceFirst(".txt","") + ".txt";
 		BufferedReader br = null;
 		StringBuilder s = new StringBuilder();
 		try{
@@ -75,7 +75,7 @@ public class Server {
 		} finally {
 			try{if (br != null)br.close();} catch(IOException e){e.printStackTrace();}
 		}
-		new Server(s.toString(),output);
+		new Server(s.toString(),output,Integer.parseInt(args[0]));
 	}
 
 	private void main(){
@@ -89,7 +89,6 @@ public class Server {
 					try{
 						socket.receive(receive);
 						String from = receive.getAddress().getHostAddress();
-						String me =  InetAddress.getLocalHost().getHostAddress();
 						System.out.println("Packet from - "+from+":"+receive.getPort());
 						packetQueue.add(receive);
 					} catch (SocketTimeoutException e){
@@ -159,20 +158,14 @@ public class Server {
 		if(toProcess==null){return false;}
 		byte[] data = toProcess.getData();
 		byte firstByte = data[0];
-		byte[] temp = new byte[data.length-1];
-		for(int i=0; i<temp.length;i++){
-			temp[i] = data[i+1];
-		} data=temp;
 
 		byte[] ret;
 		if(firstByte== (byte) 0){
 			System.out.println("List from - "+toProcess.getAddress().getHostAddress()+":"+toProcess.getPort());
 			ret = candidates.getBytes();
-			//TODO: return dynamic candidates.
 		} else if(firstByte == (byte) 1) {
 			System.out.println("Count req from - "+toProcess.getAddress().getHostAddress()+":"+toProcess.getPort());
 			ret = countRequest();
-			//TODO:return dynamic count.
 		} else if(firstByte == (byte) 2){
 			System.out.println("Vote from - "+toProcess.getAddress().getHostAddress()+":"+toProcess.getPort());
 			ret = new byte[1];
@@ -219,7 +212,7 @@ public class Server {
 
 	private int registerUser(byte[] data){
 		Entry registration = Entry.toEntryObj(data);
-		DataObj in = new DataObj(registration.getLoginID(),registration.getLoginPW(), registration.getName(),registration.getDistrict());
+		DataObj in = new DataObj(registration.getLoginID(),registration.getLoginPW());
 
 		if(database.add(in)){
 			return 1;	//ID added
@@ -264,15 +257,11 @@ public class Server {
 		int id;
 		char[] pass;
 		short voteNum;
-		char[] name;
-		char[] dist;
 
-		public DataObj(int id, char[] pass, char[] name, char[] dist){
+		public DataObj(int id, char[] pass){
 			this.id = id;
 			this.pass = pass;
 			this.voteNum = (short) -1;
-			this.name = name;
-			this.dist=dist;
 		}
 
 		private DataObj(int id){
@@ -308,8 +297,6 @@ public class Server {
 		public int getID(){return id;}
 
 		public char[] getPass(){return pass;}
-
-		public char[] getName(){return name;}
 
 		public short getVoteNum(){return voteNum;}
 
