@@ -3,22 +3,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.ActionEvent;
 import java.awt.Point;
 import java.net.InetAddress;
 
-import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JTextField;
-import javax.swing.JFrame;
 
 public class Controller implements ActionListener, KeyListener {
 	private DialogBox messagebox;
 	private Client cl;
 	private GUI gui;
-	
-	private static String REGISTERPANEL = "Register";
-	private static String VOTEPANEL 	= "Vote";
+
+	private static final String REGISTERPANEL = "Register";
+	private static final String VOTEPANEL = "Vote";
 
 	public Controller(GUI gui, InetAddress address, int port, int timeout) {
 		this.gui = gui;
@@ -34,10 +31,12 @@ public class Controller implements ActionListener, KeyListener {
 	}
 
 	public void addDialogBox(String s) {
-		if(messagebox!=null){messagebox.dispose();}
+		if (messagebox != null) {
+			messagebox.dispose();
+		}
 		Point origin = gui.getLocation();
-		//double x = ; if(x<0){x==0}
-		messagebox = new DialogBox(s,new Point((new Double(origin.getX()+gui.getWidth()/2)).intValue(),(new Double(origin.getY()+gui.getHeight())).intValue()));
+		// double x = ; if(x<0){x==0}
+		messagebox = new DialogBox(s, new Point((new Double(origin.getX() + gui.getWidth() / 2)).intValue(), (new Double(origin.getY() + gui.getHeight())).intValue()));
 		messagebox.addController(this);
 	}
 
@@ -49,12 +48,9 @@ public class Controller implements ActionListener, KeyListener {
 			String username = gui.getText(0, 0).getText();
 			String password = gui.getText(0, 1).getText();
 			String name = gui.getText(0, 2).getText();
-			String dist = gui.getText(0, 3).getText();
 			byte r;
 			try {
-				r = cl.register(Integer.parseInt(username),
-						password.toCharArray(), name.toCharArray(),
-						dist.toCharArray());
+				r = cl.register(Integer.parseInt(username), password.toCharArray(), name.toCharArray());
 			} catch (NumberFormatException e) {
 				r = (byte) -4;
 			}
@@ -78,8 +74,7 @@ public class Controller implements ActionListener, KeyListener {
 			String candidate = gui.getText(1, 2).getText();
 			byte r;
 			try {
-				r = cl.vote(Short.parseShort(candidate), Integer.parseInt(id),
-						password.toCharArray());
+				r = cl.vote(Short.parseShort(candidate), Integer.parseInt(id), password.toCharArray());
 			} catch (NumberFormatException e) {
 				r = (byte) -4;
 			}
@@ -116,28 +111,28 @@ public class Controller implements ActionListener, KeyListener {
 			gui.setLayout(3);
 		}
 	}
-	
-    @Override
-    public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode()==KeyEvent.VK_ENTER){
-        	Component focus = gui.getFocusOwner();
-        	if(focus instanceof JTextField){
-        		if(gui.getCurrPanel().equals(REGISTERPANEL)){
-        			this.actionPerformed(new ActionEvent(this,1,"Register Voter"));
-        		} else if(gui.getCurrPanel().equals(VOTEPANEL)){
-        			this.actionPerformed(new ActionEvent(this,1,"Vote"));
-        		}
-        	}else if(focus instanceof JButton){
-        		this.actionPerformed(new ActionEvent(this,1,((JButton) focus).getActionCommand()));
-        	}
-        }
-    }
 
-    @Override
-    public void keyReleased(KeyEvent arg0) {
-    }
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			Component focus = gui.getFocusOwner();
+			if (focus instanceof JTextField) {
+				if (gui.getCurrPanel().equals(REGISTERPANEL)) {
+					this.actionPerformed(new ActionEvent(this, 1, "Register Voter"));
+				} else if (gui.getCurrPanel().equals(VOTEPANEL)) {
+					this.actionPerformed(new ActionEvent(this, 1, "Vote"));
+				}
+			} else if (focus instanceof JButton) {
+				this.actionPerformed(new ActionEvent(this, 1, ((JButton) focus).getActionCommand()));
+			}
+		}
+	}
 
-    @Override
-    public void keyTyped(KeyEvent arg0) {
-    }
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+	}
 }
