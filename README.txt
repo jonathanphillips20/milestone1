@@ -10,7 +10,7 @@ Once compiled you may run the server or a client by entering the following on th
 	java Server3 <candidates> <ip:port> <ip:port> ... <ip:port>
 	
 The previously mentioned Client is a command line version. For the GUI version the following can be used:
-	java GUI  <server> <port> <timeout>
+	java GUI <name> <server> <port> <timeout>
 	
 -------------------------------------------------------------------------------	
 Passing invalid argument types (i.e. String for as integer) can produce unexpected results or errors.
@@ -36,6 +36,7 @@ Server3:
 			www.google.com:5555		(Although google.com will not respond with the correct data.)
 
 GUI:
+    name        --> (String) Name of the GUI (ie. District-1, Ontario)
     server  	-->	(String) Hostname of the server. Can be be name or IP address. examples: "localhost", "192.168.1.200", "http://www.google.ca/"
 	port    	-->	(int) Port of the server.
 	timeout 	-->	(int) Client timeout. If 0, timeout will be effectively infinite.
